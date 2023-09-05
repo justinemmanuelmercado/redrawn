@@ -1,0 +1,9 @@
+# sqlc.yaml
+
+version: "1"
+packages:
+  - name: "db"
+    path: "./db"
+    queries: "./queries.sql"
+    schema: "./schema.sql"
+    engine: "postgresql"
