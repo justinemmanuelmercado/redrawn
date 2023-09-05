@@ -24,5 +24,4 @@ dist-ssr
 *.sw?
 
 # DB
-
-backend/scrips/init_db.sql
+backend/scripts/init_db.sql
