@@ -1,0 +1,14 @@
+{
+  "version": "435061a1b5a4c1e26740464bf786efdfa9cb3a3ac488595a2de23e143fdb0117",
+  "input": {
+    "a_prompt": "white background",
+    "ddim_steps": 20,
+    "eta": 0,
+    "image": "<REALLY LONG BASE64 ENCODED IMAGE STRING>",
+    "image_resolution": "512",
+    "n_prompt": "longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality",
+    "num_samples": "1",
+    "prompt": "a photo of a brightly colored turtle",
+    "scale": 9
+  }
+}
