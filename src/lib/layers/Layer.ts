@@ -1,4 +1,4 @@
-import { Point } from "../canvas/Canvas";
+import { Point } from "../../canvas/Canvas";
 
 export abstract class Layer {
   public visible: boolean = true;

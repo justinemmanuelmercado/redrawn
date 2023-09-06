@@ -48,7 +48,7 @@ func ScribbleHandler(w http.ResponseWriter, r *http.Request) {
 		"ddim_steps":       20,
 		"scale":            9,
 		"eta":              0,
-		"a_prompt":         "best quality, cyberpunk",
+		"a_prompt":         "best quality",
 		"n_prompt":         "longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality",
 	}
 

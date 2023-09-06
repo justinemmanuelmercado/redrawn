@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { Layer } from "./lib/Layer";
-import { layerFactory } from "./lib/layerFactory";
+import { Layer } from "./lib/layers/Layer";
+import { layerFactory } from "./lib/layers/layerFactory";
 
 interface Point {
   x: number;
@@ -11,6 +11,7 @@ export const drawModes = {
   rectangle: "rectangle",
   ellipse: "ellipse",
   line: "line",
+  scribbleSelection: "scribbleSelection",
 } as const;
 
 export type DrawModes = (typeof drawModes)[keyof typeof drawModes];
@@ -22,17 +23,20 @@ export type State = {
   endPoint: Point | null;
   layers: Layer[];
   currentLayer: Layer | null;
-  startDrawing: (point: Point) => void;
-  stopDrawing: (point: Point) => void;
-  updateCurrentLayer: (point: Point) => void;
   fill: boolean;
   fillColor: string | null;
   strokeColor: string | null;
   strokeSize: number;
+  currentSelection: [Point, Point];
+  startDrawing: (point: Point) => void;
+  stopDrawing: (point: Point) => void;
+  updateCurrentLayer: (point: Point) => void;
   setDrawMode: (mode: DrawModes) => void;
   setStrokeColor: (color: string) => void;
   setFillColor: (color: string) => void;
   setStrokeSize: (width: number) => void;
+  setCurrentSelection: (selection: [Point, Point]) => void;
+  addLayer: (layer: Layer) => void;
 };
 
 export const useStore = create<State>((set) => ({
@@ -46,6 +50,10 @@ export const useStore = create<State>((set) => ({
   fillColor: "black",
   strokeColor: "black",
   strokeSize: 1,
+  currentSelection: [
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+  ],
   startDrawing: (point) =>
     set((state) => {
       const isDrawing = true;
@@ -84,4 +92,10 @@ export const useStore = create<State>((set) => ({
   setStrokeColor: (color: string) => set(() => ({ strokeColor: color })),
   setFillColor: (color: string) => set(() => ({ fillColor: color })),
   setStrokeSize: (size: number) => set(() => ({ strokeSize: size })),
+  setCurrentSelection: (selection: [Point, Point]) => {
+    set(() => ({ currentSelection: selection }));
+  },
+  addLayer(layer: Layer) {
+    set((state) => ({ layers: [...state.layers, layer] }));
+  },
 }));

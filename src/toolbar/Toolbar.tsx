@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import { DrawModes, drawModes, useStore } from "../store";
 import { SketchPicker } from "react-color";
 
@@ -20,6 +20,10 @@ const tools: Tool[] = [
     name: drawModes.line,
     icon: "line",
   },
+  {
+    name: drawModes.scribbleSelection,
+    icon: "scribble",
+  },
 ];
 
 export const Toolbar = () => {
@@ -28,6 +32,9 @@ export const Toolbar = () => {
 
   const [localStrokeColor, setLocalStrokeColor] = useState<string | null>(null);
   const [localFillColor, setLocalFillColor] = useState<string | null>(null);
+  const [displayStrokeColorPicker, setDisplayStrokeColorPicker] =
+    useState(false);
+  const [displayFillColorPicker, setDisplayFillColorPicker] = useState(false);
   return (
     <div className="flex flex-col items-start p-4 space-y-4">
       <div>
@@ -49,32 +56,50 @@ export const Toolbar = () => {
       </div>
       <div className="flex flex-col space-y-2">
         <label>
-          Stroke Color
-          <SketchPicker
-            color={localStrokeColor ?? "transparent"}
-            onChange={(e) => {
-              setLocalStrokeColor(
-                e.rgb.a === 1
-                  ? e.hex
-                  : `rgba(${e.rgb.r}, ${e.rgb.g}, ${e.rgb.b}, ${e.rgb.a})`
-              );
-            }}
-            onChangeComplete={() => setStrokeColor(localStrokeColor ?? "transparent")}
-          />
+          <button
+            onClick={() =>
+              setDisplayStrokeColorPicker(!displayStrokeColorPicker)
+            }
+          >
+            Stroke Color
+          </button>
+          {displayStrokeColorPicker ? (
+            <SketchPicker
+              color={localStrokeColor ?? "transparent"}
+              onChange={(e) => {
+                setLocalStrokeColor(
+                  e.rgb.a === 1
+                    ? e.hex
+                    : `rgba(${e.rgb.r}, ${e.rgb.g}, ${e.rgb.b}, ${e.rgb.a})`
+                );
+              }}
+              onChangeComplete={() =>
+                setStrokeColor(localStrokeColor ?? "transparent")
+              }
+            />
+          ) : null}
         </label>
         <label>
-          Fill Color
-          <SketchPicker
-            color={localFillColor ?? "transparent"}
-            onChange={(e) => {
-              setLocalFillColor(
-                e.rgb.a === 1
-                  ? e.hex
-                  : `rgba(${e.rgb.r}, ${e.rgb.g}, ${e.rgb.b}, ${e.rgb.a})`
-              );
-            }}
-            onChangeComplete={() => setFillColor(localFillColor ?? "transparent")}
-          />
+          <button
+            onClick={() => setDisplayFillColorPicker(!displayFillColorPicker)}
+          >
+            Fill Color
+          </button>
+          {displayFillColorPicker ? (
+            <SketchPicker
+              color={localFillColor ?? "transparent"}
+              onChange={(e) => {
+                setLocalFillColor(
+                  e.rgb.a === 1
+                    ? e.hex
+                    : `rgba(${e.rgb.r}, ${e.rgb.g}, ${e.rgb.b}, ${e.rgb.a})`
+                );
+              }}
+              onChangeComplete={() =>
+                setFillColor(localFillColor ?? "transparent")
+              }
+            />
+          ) : null}
         </label>
         <label>
           Stroke Width
