@@ -77,7 +77,6 @@ func ScribbleHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("Output:", prediction.Output)
 
 			w.Header().Set("Content-Type", "application/json")
-			// Write predictId: predictId and output: prediction.Output to response
 			w.Write([]byte(predictId))
 			w.Write([]byte(jsonData))
 

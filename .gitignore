@@ -26,3 +26,4 @@ dist-ssr
 # Backend
 backend/scripts/init_db.sql
 backend/.env
+backend/tmp
