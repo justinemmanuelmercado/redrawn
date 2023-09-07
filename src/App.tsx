@@ -15,9 +15,9 @@ function App() {
         </div>
 
         {/* Canvas in the middle */}
-        <div className="col-span-8 bg-white flex justify-center items-center flex-col">
-          <Canvas />
+        <div className="col-span-8 bg-white flex flex-col items-center">
           <ScribblePrompt />
+          <Canvas />
         </div>
 
         {/* Layers on the right */}

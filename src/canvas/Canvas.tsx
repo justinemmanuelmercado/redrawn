@@ -9,12 +9,37 @@ export interface Point {
 
 export function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const bgCanvasRef = useRef<HTMLCanvasElement>(null);
+
   const { isDrawing, startDrawing, stopDrawing, updateCurrentLayer } = useStore(
     (state) => state
   );
   const layers = useStore((state) => state.layers);
   const currentLayer = useStore((state) => state.currentLayer);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
+
+  useEffect(() => {
+    const backgroundCanvas = bgCanvasRef.current;
+    if (!backgroundCanvas) return;
+
+    const dpi = window.devicePixelRatio;
+    backgroundCanvas.width = 512 * dpi;
+    backgroundCanvas.height = 512 * dpi;
+    backgroundCanvas.style.width = "512px";
+    backgroundCanvas.style.height = "512px";
+
+    const backgroundCtx = backgroundCanvas.getContext("2d");
+    if (!backgroundCtx) return;
+
+    backgroundCtx.scale(dpi, dpi);
+
+    drawCheckerBoard(
+      backgroundCtx,
+      10 * dpi,
+      Math.ceil(backgroundCanvas.width / 20),
+      Math.ceil(backgroundCanvas.height / 20)
+    );
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -36,14 +61,6 @@ export function Canvas() {
 
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw the checkerboard background
-    drawCheckerBoard(
-      ctx,
-      10 * dpi,
-      Math.ceil(canvas.width / 20),
-      Math.ceil(canvas.height / 20)
-    );
 
     layers.forEach((layer) => {
       layer.drawToCanvas(ctx);
@@ -74,13 +91,18 @@ export function Canvas() {
     }
   };
   return (
-    <>
+    <div className="flex">
       <canvas
+        className="absolute"
+        ref={bgCanvasRef}
+      ></canvas>
+      <canvas
+        className='z-10'
         ref={canvasRef}
         onMouseDown={handleMouseDown}
         onMouseUp={isDrawing ? handleMouseUp : undefined}
         onMouseMove={isDrawing ? handleMouseMove : undefined}
       ></canvas>
-    </>
+    </div>
   );
 }

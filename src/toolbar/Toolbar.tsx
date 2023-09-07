@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { DrawModes, drawModes, useStore } from "../store";
 import { SketchPicker } from "react-color";
+import ColorSelector from './ColorSelector';
 
 interface Tool {
   name: DrawModes;
@@ -36,25 +37,26 @@ export const Toolbar = () => {
     useState(false);
   const [displayFillColorPicker, setDisplayFillColorPicker] = useState(false);
   return (
-    <div className="flex flex-col items-start p-4 space-y-4">
-      <div>
+    <div className="flex flex-col items-start gap-10">
+      <div className='flex flex-col gap-2'>
         {tools.map((tool) => {
           return (
             <button
               key={tool.name}
-              className={`p-2 rounded-md ${
+              className={`rounded-md ${
                 drawMode === tool.name
                   ? "bg-gray-600 text-white"
                   : "bg-gray-200"
               }`}
               onClick={() => setDrawMode(tool.name)}
             >
-              {tool.name}
+              <img className="aspect-square w-8 p-2" src={`icons/${tool.icon}.svg`} alt={tool.name + " tool"} />
             </button>
           );
         })}
       </div>
       <div className="flex flex-col space-y-2">
+        <ColorSelector strokeColor={localStrokeColor ?? "transparent"} fillColor={localFillColor ?? "transparent"} />
         <label>
           <button
             onClick={() =>
