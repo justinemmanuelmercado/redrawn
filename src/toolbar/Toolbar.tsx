@@ -1,7 +1,17 @@
-import { useState } from "react";
-import { DrawModes, drawModes, useStore } from "../store";
-import { SketchPicker } from "react-color";
-import ColorSelector from './ColorSelector';
+import { DrawModes, drawModes, useStore } from "@/store";
+import ColorSelector from "@/toolbar/ColorSelector";
+import { Slider } from "@/components/ui/slider";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface Tool {
   name: DrawModes;
@@ -28,90 +38,72 @@ const tools: Tool[] = [
 ];
 
 export const Toolbar = () => {
-  const { setDrawMode, drawMode, setStrokeColor, setFillColor, setStrokeSize } =
-    useStore((state) => state);
+  const { setDrawMode, drawMode, setStrokeSize, strokeSize } = useStore(
+    (state) => state
+  );
 
-  const [localStrokeColor, setLocalStrokeColor] = useState<string | null>(null);
-  const [localFillColor, setLocalFillColor] = useState<string | null>(null);
-  const [displayStrokeColorPicker, setDisplayStrokeColorPicker] =
-    useState(false);
-  const [displayFillColorPicker, setDisplayFillColorPicker] = useState(false);
   return (
-    <div className="flex flex-col items-start gap-10">
-      <div className='flex flex-col gap-2'>
-        {tools.map((tool) => {
-          return (
-            <button
-              key={tool.name}
-              className={`rounded-md ${
-                drawMode === tool.name
-                  ? "bg-gray-600 text-white"
-                  : "bg-gray-200"
-              }`}
-              onClick={() => setDrawMode(tool.name)}
-            >
-              <img className="aspect-square w-8 p-2" src={`icons/${tool.icon}.svg`} alt={tool.name + " tool"} />
-            </button>
-          );
-        })}
-      </div>
-      <div className="flex flex-col space-y-2">
-        <ColorSelector strokeColor={localStrokeColor ?? "transparent"} fillColor={localFillColor ?? "transparent"} />
-        <label>
-          <button
-            onClick={() =>
-              setDisplayStrokeColorPicker(!displayStrokeColorPicker)
-            }
-          >
-            Stroke Color
-          </button>
-          {displayStrokeColorPicker ? (
-            <SketchPicker
-              color={localStrokeColor ?? "transparent"}
-              onChange={(e) => {
-                setLocalStrokeColor(
-                  e.rgb.a === 1
-                    ? e.hex
-                    : `rgba(${e.rgb.r}, ${e.rgb.g}, ${e.rgb.b}, ${e.rgb.a})`
-                );
-              }}
-              onChangeComplete={() =>
-                setStrokeColor(localStrokeColor ?? "transparent")
-              }
-            />
-          ) : null}
-        </label>
-        <label>
-          <button
-            onClick={() => setDisplayFillColorPicker(!displayFillColorPicker)}
-          >
-            Fill Color
-          </button>
-          {displayFillColorPicker ? (
-            <SketchPicker
-              color={localFillColor ?? "transparent"}
-              onChange={(e) => {
-                setLocalFillColor(
-                  e.rgb.a === 1
-                    ? e.hex
-                    : `rgba(${e.rgb.r}, ${e.rgb.g}, ${e.rgb.b}, ${e.rgb.a})`
-                );
-              }}
-              onChangeComplete={() =>
-                setFillColor(localFillColor ?? "transparent")
-              }
-            />
-          ) : null}
-        </label>
-        <label>
-          Stroke Width
-          <input
-            type="number"
-            min="1"
-            max="10"
-            onChange={(e) => setStrokeSize(parseInt(e.target.value, 10))}
-          />
-        </label>
+    <div className="flex flex-col justify-center h-full">
+      <div className="items-center flex flex-col gap-10 bg-slate-100 border border-slate-300 ml-8 py-2">
+        <div className="flex flex-col">
+          {tools.map((tool) => {
+            return (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <button
+                      key={tool.name}
+                      className={`border border-slate-300 ${
+                        drawMode === tool.name ? "bg-slate-300" : "bg-slate-200"
+                      }`}
+                      onClick={() => setDrawMode(tool.name)}
+                    >
+                      <img
+                        className="aspect-square w-8 p-2"
+                        src={`icons/${tool.icon}.svg`}
+                        alt={tool.name + " tool"}
+                      />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{tool.name}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })}
+        </div>
+        <div className="flex flex-col space-y-2">
+          <ColorSelector />
+          <Popover>
+            <PopoverTrigger>
+              <button
+                className={`w-full bg-slate-100 border border-slate-300 flex justify-center`}
+              >
+                <img
+                  className="w-8 h-8 p-2 aspect-square"
+                  src="icons/width.svg"
+                  alt="width-toggle"
+                />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="flex flex-col gap-2">
+              <div>Stroke Size</div>
+              <div className="flex gap-2">
+
+              <Slider
+                defaultValue={[strokeSize]}
+                max={50}
+                step={1}
+                onValueChange={(e) => {
+                  setStrokeSize(e[0]);
+                }}
+              ></Slider>
+              <span>{strokeSize}</span>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
     </div>
   );

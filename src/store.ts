@@ -24,8 +24,8 @@ export type State = {
   layers: Layer[];
   currentLayer: Layer | null;
   fill: boolean;
-  fillColor: string | null;
-  strokeColor: string | null;
+  fillColor: string;
+  strokeColor: string;
   strokeSize: number;
   currentSelection: [Point, Point];
   startDrawing: (point: Point) => void;
@@ -47,9 +47,9 @@ export const useStore = create<State>((set) => ({
   layers: [],
   currentLayer: null,
   fill: true,
-  fillColor: "black",
-  strokeColor: "black",
-  strokeSize: 1,
+  fillColor: "rgba(255,255,255,1)",
+  strokeColor: "rgba(0,0,0,1)",
+  strokeSize: 4,
   currentSelection: [
     { x: 0, y: 0 },
     { x: 0, y: 0 },

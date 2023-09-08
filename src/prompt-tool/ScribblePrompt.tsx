@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useStore } from "../store";
+import { useStore } from "@/store";
 import { useMutation } from "@tanstack/react-query";
-import { Layer } from "../lib/layers/Layer";
-import { Point } from "../canvas/Canvas";
+import { Layer } from "@/lib/layers/Layer";
+import { Point } from "@/canvas/Canvas";
 
 const drawCanvas = (layers: Layer[]): CanvasRenderingContext2D | null => {
   const canvas = document.createElement("canvas");
@@ -33,7 +33,7 @@ function captureArea(
 
     const maxCanvasWidth = originalCtx.canvas.width;
     const maxCanvasHeight = originalCtx.canvas.height;
-    
+
     console.log("Max Width:", maxCanvasWidth, "Max Height:", maxCanvasHeight);
     console.log("Current x:", x, "y:", y, "width:", width, "height:", height);
 

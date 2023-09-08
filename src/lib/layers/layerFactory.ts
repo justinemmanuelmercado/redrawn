@@ -1,4 +1,4 @@
-import { State, drawModes } from "../../store";
+import { State, drawModes } from "@/store";
 import { EllipseLayer } from "./EllipseLayer";
 import { Layer } from "./Layer";
 import { LineLayer } from "./LineLayer";

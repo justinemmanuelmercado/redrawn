@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useStore } from "../store";
-import { drawCheckerBoard } from "../helpers/canvas-helpers";
+import { useStore } from "@/store";
+import { drawCheckerBoard } from "@/helpers/canvas-helpers";
 
 export interface Point {
   x: number;
@@ -91,7 +91,7 @@ export function Canvas() {
     }
   };
   return (
-    <div className="flex">
+    <div className="flex items-center justify-center">
       <canvas
         className="absolute"
         ref={bgCanvasRef}
