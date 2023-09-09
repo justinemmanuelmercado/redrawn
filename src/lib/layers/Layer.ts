@@ -10,7 +10,11 @@ export abstract class Layer {
   public fillColor: null | string = null;
   public strokeColor: null | string = null;
   public strokeSize: number = 1;
-  abstract drawToCanvas(ctx: CanvasRenderingContext2D): void;
+  abstract drawToCanvas(ctx: CanvasRenderingContext2D, scale?: number): void;
+
+  public updatePoint(newPoint: Point) {
+    this.end = newPoint;
+  }
 
   public setVisibility(visible: boolean) {
     this.visible = visible;

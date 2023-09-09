@@ -50,6 +50,7 @@ func ScribbleHandler(w http.ResponseWriter, r *http.Request) {
 		"eta":              0,
 		"a_prompt":         "best quality",
 		"n_prompt":         "longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality",
+		"guidance_scale":   9,
 	}
 
 	prediction, err := client.CreatePrediction(context.TODO(), "435061a1b5a4c1e26740464bf786efdfa9cb3a3ac488595a2de23e143fdb0117", input, nil, false)

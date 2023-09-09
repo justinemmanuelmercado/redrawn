@@ -11,7 +11,7 @@ export function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const bgCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  const { isDrawing, startDrawing, stopDrawing, updateCurrentLayer } = useStore(
+  const { isDrawing, startDrawing, stopDrawing, updateCurrentLayer, canvasDimensions, endPoint } = useStore(
     (state) => state
   );
   const layers = useStore((state) => state.layers);
@@ -23,10 +23,10 @@ export function Canvas() {
     if (!backgroundCanvas) return;
 
     const dpi = window.devicePixelRatio;
-    backgroundCanvas.width = 512 * dpi;
-    backgroundCanvas.height = 512 * dpi;
-    backgroundCanvas.style.width = "512px";
-    backgroundCanvas.style.height = "512px";
+    backgroundCanvas.width = canvasDimensions.width * dpi;
+    backgroundCanvas.height = canvasDimensions.height * dpi;
+    backgroundCanvas.style.width = canvasDimensions.width + "px";
+    backgroundCanvas.style.height = canvasDimensions.height + "px";
 
     const backgroundCtx = backgroundCanvas.getContext("2d");
     if (!backgroundCtx) return;
@@ -39,7 +39,7 @@ export function Canvas() {
       Math.ceil(backgroundCanvas.width / 20),
       Math.ceil(backgroundCanvas.height / 20)
     );
-  }, []);
+  }, [canvasDimensions.height, canvasDimensions.width]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -47,10 +47,10 @@ export function Canvas() {
 
     const dpi = window.devicePixelRatio;
     if (!ctx) {
-      canvas.width = 512 * dpi;
-      canvas.height = 512 * dpi;
-      canvas.style.width = "512px";
-      canvas.style.height = "512px";
+      canvas.height = canvasDimensions.height * dpi;
+      canvas.width = canvasDimensions.width * dpi;
+      canvas.style.width = canvasDimensions.width + "px";
+      canvas.style.height = canvasDimensions.height + "px";
       const temp = canvas.getContext("2d");
       if (!temp) return;
       temp.scale(dpi, dpi);
@@ -69,7 +69,7 @@ export function Canvas() {
     if (currentLayer) {
       currentLayer.drawToCanvas(ctx);
     }
-  }, [currentLayer, layers, ctx]);
+  }, [currentLayer, layers, ctx, canvasDimensions.height, canvasDimensions.width, endPoint]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     const x = e.nativeEvent.offsetX;
@@ -103,6 +103,7 @@ export function Canvas() {
         onMouseUp={isDrawing ? handleMouseUp : undefined}
         onMouseMove={isDrawing ? handleMouseMove : undefined}
       ></canvas>
+      {/* <canvas className='z-20'></canvas> */}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Layer } from "./Layer";
 
 export class LineLayer extends Layer {
   constructor(
+    public name: string,
     start: Point,
     end: Point,
     strokeColor: string | null,
@@ -14,7 +15,9 @@ export class LineLayer extends Layer {
     this.strokeColor = strokeColor;
     this.strokeSize = strokeSize;
   }
-  drawToCanvas(ctx: CanvasRenderingContext2D) {
+  drawToCanvas(ctx: CanvasRenderingContext2D, scale = 1) {
+    ctx.save()
+    ctx.scale(scale, scale);
     ctx.beginPath();
     ctx.moveTo(this.start.x, this.start.y);
     ctx.lineTo(this.end.x, this.end.y);
@@ -26,5 +29,6 @@ export class LineLayer extends Layer {
     ctx.lineWidth = this.strokeSize;
     
     ctx.stroke();
+    ctx.restore();
   }
 }

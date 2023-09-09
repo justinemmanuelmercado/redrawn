@@ -3,6 +3,7 @@ import { Layer } from "./Layer";
 
 export class RectangleLayer extends Layer {
   constructor(
+    public name: string,
     start: Point,
     end: Point,
     fillColor: string | null,
@@ -17,7 +18,11 @@ export class RectangleLayer extends Layer {
     this.strokeSize = strokeSize;
   }
 
-  drawToCanvas(ctx: CanvasRenderingContext2D) {
+  drawToCanvas(ctx: CanvasRenderingContext2D, scale = 1) {
+    ctx.save();
+
+    ctx.scale(scale, scale);
+
     if (this.strokeColor) {
       ctx.strokeStyle = this.strokeColor;
     }
@@ -42,5 +47,7 @@ export class RectangleLayer extends Layer {
       this.end.x - this.start.x,
       this.end.y - this.start.y
     );
+
+    ctx.restore();
   }
 }

@@ -3,6 +3,7 @@ import { useStore } from "@/store";
 import { useMutation } from "@tanstack/react-query";
 import { Layer } from "@/lib/layers/Layer";
 import { Point } from "@/canvas/Canvas";
+import {Button} from "@/components/ui/button"
 
 const drawCanvas = (layers: Layer[]): CanvasRenderingContext2D | null => {
   const canvas = document.createElement("canvas");
@@ -111,14 +112,14 @@ export const ScribblePrompt = () => {
   };
 
   return (
-    <div className="">
+    <div className='mb-2 p-2 bg-gray-100'>
       <input
         className="border border-black"
         value={prompt}
         onChange={handleChange}
         type="text"
       />
-      <button onClick={handleSubmit}>Submit</button>
+      <Button onClick={handleSubmit}>Imagine</Button>
     </div>
   );
 };

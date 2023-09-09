@@ -7,31 +7,36 @@ interface Point {
   y: number;
 }
 
-export const drawModes = {
+export const modes = {
   rectangle: "rectangle",
   ellipse: "ellipse",
   line: "line",
   scribbleSelection: "scribbleSelection",
+  freehand: "freehand",
 } as const;
 
-export type DrawModes = (typeof drawModes)[keyof typeof drawModes];
+export type Modes = (typeof modes)[keyof typeof modes];
 
 export type State = {
+  canvasDimensions: { width: number; height: number };
   isDrawing: boolean;
-  drawMode: DrawModes;
+  mode: Modes;
   startPoint: Point | null;
   endPoint: Point | null;
+  passedPoints: Point[];
   layers: Layer[];
+  selectedLayers: Layer[];
   currentLayer: Layer | null;
   fill: boolean;
   fillColor: string;
   strokeColor: string;
   strokeSize: number;
   currentSelection: [Point, Point];
+  isSelecting: boolean;
   startDrawing: (point: Point) => void;
   stopDrawing: (point: Point) => void;
   updateCurrentLayer: (point: Point) => void;
-  setDrawMode: (mode: DrawModes) => void;
+  setMode: (mode: Modes) => void;
   setStrokeColor: (color: string) => void;
   setFillColor: (color: string) => void;
   setStrokeSize: (width: number) => void;
@@ -40,11 +45,14 @@ export type State = {
 };
 
 export const useStore = create<State>((set) => ({
+  canvasDimensions: { width: 512, height: 512 },
   isDrawing: false,
-  drawMode: drawModes.rectangle,
+  mode: modes.rectangle,
   startPoint: null,
+  passedPoints: [],
   endPoint: null,
   layers: [],
+  selectedLayers: [],
   currentLayer: null,
   fill: true,
   fillColor: "rgba(255,255,255,1)",
@@ -54,6 +62,7 @@ export const useStore = create<State>((set) => ({
     { x: 0, y: 0 },
     { x: 0, y: 0 },
   ],
+  isSelecting: false,
   startDrawing: (point) =>
     set((state) => {
       const isDrawing = true;
@@ -77,6 +86,7 @@ export const useStore = create<State>((set) => ({
       return {
         isDrawing: false,
         layers: [...state.layers, newLayer],
+        passedPoints: [],
         currentLayer: null,
       };
     }),
@@ -84,11 +94,12 @@ export const useStore = create<State>((set) => ({
     set((state) => {
       if (state.currentLayer) {
         state.endPoint = point;
+        state.currentLayer.updatePoint(point);
       }
-      const currentLayer = layerFactory({ ...state, endPoint: point });
-      return { currentLayer };
+
+      return {};
     }),
-  setDrawMode: (mode: DrawModes) => set(() => ({ drawMode: mode })),
+  setMode: (mode: Modes) => set(() => ({ mode: mode })),
   setStrokeColor: (color: string) => set(() => ({ strokeColor: color })),
   setFillColor: (color: string) => set(() => ({ fillColor: color })),
   setStrokeSize: (size: number) => set(() => ({ strokeSize: size })),

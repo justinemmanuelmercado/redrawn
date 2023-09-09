@@ -3,6 +3,7 @@ import { Layer } from "./Layer";
 
 export class EllipseLayer extends Layer {
   constructor(
+    public name: string,
     start: Point,
     end: Point,
     fillColor: string | null,
@@ -17,7 +18,10 @@ export class EllipseLayer extends Layer {
     this.strokeSize = strokeSize;
   }
 
-  drawToCanvas(ctx: CanvasRenderingContext2D) {
+  drawToCanvas(ctx: CanvasRenderingContext2D, scale = 1) {
+    ctx.save();  
+
+    ctx.scale(scale, scale);
     const centerX = (this.start.x + this.end.x) / 2;
     const centerY = (this.start.y + this.end.y) / 2;
     const radiusX = Math.abs(this.end.x - this.start.x) / 2;
@@ -45,5 +49,6 @@ export class EllipseLayer extends Layer {
   
     ctx.lineWidth = this.strokeSize;
     ctx.stroke();
+    ctx.restore();
   }
 }

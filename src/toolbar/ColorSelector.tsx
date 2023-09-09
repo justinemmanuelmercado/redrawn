@@ -28,15 +28,13 @@ const ColorSelector = () => {
           <PopoverTrigger>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
-                  <button className="p-2 border border-slate-300">
-                    <div className="rounded-full border-2 border-slate-400 w-6 h-6">
-                      <div
-                        className="w-full h-full rounded-full border-4 border-black"
-                        style={{ borderColor: localStrokeColor }}
-                      ></div>
-                    </div>
-                  </button>
+                <TooltipTrigger asChild={true}>
+                  <div className="rounded-full border-2 border-slate-400 w-6 h-6">
+                    <div
+                      className="w-full h-full rounded-full border-4 border-black"
+                      style={{ borderColor: localStrokeColor }}
+                    ></div>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Stroke Color</p>
@@ -44,7 +42,7 @@ const ColorSelector = () => {
               </Tooltip>
             </TooltipProvider>
           </PopoverTrigger>
-          <PopoverContent  className='w-0 p-0 m-0'>
+          <PopoverContent className="w-0 p-0 m-0">
             <SketchPicker
               color={localStrokeColor ?? "transparent"}
               onChange={(e) => {
@@ -66,13 +64,11 @@ const ColorSelector = () => {
           <PopoverTrigger>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
-                  <button className="block p-2 border border-slate-300">
-                    <div
-                      className="w-6 h-6 rounded-full border-2 border-slate-400"
-                      style={{ backgroundColor: localFillColor }}
-                    ></div>
-                  </button>
+                <TooltipTrigger className="block p-2 border border-slate-300" asChild={true}>
+                  <div
+                    className="w-6 h-6 rounded-full border-2 border-slate-400"
+                    style={{ backgroundColor: localFillColor }}
+                  ></div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Fill Color</p>
@@ -80,7 +76,7 @@ const ColorSelector = () => {
               </Tooltip>
             </TooltipProvider>
           </PopoverTrigger>
-          <PopoverContent className='w-0 p-0 m-0'>
+          <PopoverContent className="w-0 p-0 m-0">
             <SketchPicker
               color={localFillColor ?? "transparent"}
               onChange={(e) => {

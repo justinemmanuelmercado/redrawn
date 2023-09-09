@@ -3,18 +3,16 @@ import { Layer } from "./Layer";
 
 export class EllipseLayer extends Layer {
   imgUrl: string | null = null;
-  constructor(
-    start: Point,
-    end: Point,
-    imgUrl: string | null,
-  ) {
+  constructor(name: string, start: Point, end: Point, imgUrl: string | null) {
     super();
     this.imgUrl = imgUrl;
     this.start = start;
     this.end = end;
   }
 
-  drawToCanvas(ctx: CanvasRenderingContext2D) {
+  drawToCanvas(ctx: CanvasRenderingContext2D, scale = 1) {
+    ctx.save();
+    ctx.scale(scale, scale);
     if (this.imgUrl) {
       const img = new Image();
       img.src = this.imgUrl;
@@ -26,5 +24,7 @@ export class EllipseLayer extends Layer {
         this.end.y - this.start.y
       );
     }
+
+    ctx.restore();
   }
 }
