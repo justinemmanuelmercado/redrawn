@@ -3,14 +3,17 @@ import { useStore } from "@/store";
 import { useMutation } from "@tanstack/react-query";
 import { Layer } from "@/lib/layers/Layer";
 import { Point } from "@/canvas/Canvas";
-import {Button} from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
-const drawCanvas = (layers: Layer[]): CanvasRenderingContext2D | null => {
+const drawCanvas = (
+  layers: Map<string, Layer>,
+  canvasDimensions: { width: number; height: number }
+): CanvasRenderingContext2D | null => {
   const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 512;
-  canvas.style.width = "512px";
-  canvas.style.height = "512px";
+  canvas.width = canvasDimensions.width;
+  canvas.height = canvasDimensions.height;
+  canvas.style.width = canvasDimensions.width + "px";
+  canvas.style.height = canvasDimensions.height + "px";
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
 
@@ -31,12 +34,6 @@ function captureArea(
     const y = Math.min(start.y, end.y);
     const width = Math.abs(start.x - end.x);
     const height = Math.abs(start.y - end.y);
-
-    const maxCanvasWidth = originalCtx.canvas.width;
-    const maxCanvasHeight = originalCtx.canvas.height;
-
-    console.log("Max Width:", maxCanvasWidth, "Max Height:", maxCanvasHeight);
-    console.log("Current x:", x, "y:", y, "width:", width, "height:", height);
 
     const imageData = originalCtx.getImageData(x, y, width, height);
     const canvas = document.createElement("canvas");
@@ -78,7 +75,9 @@ const uploadScribble = async ({
 };
 
 export const ScribblePrompt = () => {
-  const { currentSelection, layers } = useStore((state) => state);
+  const { currentSelection, layers, canvasDimensions } = useStore(
+    (state) => state
+  );
   const [prompt, setPrompt] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,7 +87,7 @@ export const ScribblePrompt = () => {
   const mutation = useMutation(uploadScribble);
 
   const handleSubmit = async () => {
-    const ctx = drawCanvas(layers);
+    const ctx = drawCanvas(layers, canvasDimensions);
     if (!ctx) return;
 
     captureArea(currentSelection[0], currentSelection[1], ctx).then(
@@ -112,7 +111,7 @@ export const ScribblePrompt = () => {
   };
 
   return (
-    <div className='mb-2 p-2 bg-gray-100'>
+    <div className="mb-2 p-2 bg-gray-100">
       <input
         className="border border-black"
         value={prompt}

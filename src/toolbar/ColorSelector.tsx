@@ -36,7 +36,7 @@ const ColorSelector = () => {
                     ></div>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent>
+                <TooltipContent side="right">
                   <p>Stroke Color</p>
                 </TooltipContent>
               </Tooltip>
@@ -70,7 +70,7 @@ const ColorSelector = () => {
                     style={{ backgroundColor: localFillColor }}
                   ></div>
                 </TooltipTrigger>
-                <TooltipContent>
+                <TooltipContent side="right">
                   <p>Fill Color</p>
                 </TooltipContent>
               </Tooltip>

@@ -1,31 +1,23 @@
 import { create } from "zustand";
 import { Layer } from "./lib/layers/Layer";
 import { layerFactory } from "./lib/layers/layerFactory";
+import { Modes, initialLayerCounts, modes } from "./lib/tools/tools";
 
 interface Point {
   x: number;
   y: number;
 }
 
-export const modes = {
-  rectangle: "rectangle",
-  ellipse: "ellipse",
-  line: "line",
-  scribbleSelection: "scribbleSelection",
-  freehand: "freehand",
-} as const;
-
-export type Modes = (typeof modes)[keyof typeof modes];
-
 export type State = {
+  layerCounts: Record<Modes, number>;
   canvasDimensions: { width: number; height: number };
   isDrawing: boolean;
   mode: Modes;
   startPoint: Point | null;
   endPoint: Point | null;
   passedPoints: Point[];
-  layers: Layer[];
-  selectedLayers: Layer[];
+  layers: Map<string, Layer>;
+  selectedLayers: string[];
   currentLayer: Layer | null;
   fill: boolean;
   fillColor: string;
@@ -41,21 +33,23 @@ export type State = {
   setFillColor: (color: string) => void;
   setStrokeSize: (width: number) => void;
   setCurrentSelection: (selection: [Point, Point]) => void;
-  addLayer: (layer: Layer) => void;
+  toggleLayer: (layerName: string) => void;
+  deleteLayer: (layerName: string) => void;
 };
 
 export const useStore = create<State>((set) => ({
+  layerCounts: initialLayerCounts,
   canvasDimensions: { width: 512, height: 512 },
   isDrawing: false,
   mode: modes.rectangle,
   startPoint: null,
   passedPoints: [],
   endPoint: null,
-  layers: [],
+  layers: new Map(),
   selectedLayers: [],
   currentLayer: null,
   fill: true,
-  fillColor: "rgba(255,255,255,1)",
+  fillColor: "rgba(0,0,0,1)",
   strokeColor: "rgba(0,0,0,1)",
   strokeSize: 4,
   currentSelection: [
@@ -66,6 +60,7 @@ export const useStore = create<State>((set) => ({
   startDrawing: (point) =>
     set((state) => {
       const isDrawing = true;
+      const layerCounts = { ...state.layerCounts, [state.mode]: state.layerCounts[state.mode] + 1 }
       const newLayer = layerFactory({
         ...state,
         isDrawing,
@@ -77,15 +72,18 @@ export const useStore = create<State>((set) => ({
         startPoint: point,
         endPoint: point,
         currentLayer: newLayer,
+        layerCounts
       };
     }),
   stopDrawing: (point) =>
     set((state) => {
       const isDrawing = false;
       const newLayer = layerFactory({ ...state, isDrawing, endPoint: point });
+      const newLayers = new Map(state.layers);
+      newLayers.set(newLayer.name, newLayer);
       return {
         isDrawing: false,
-        layers: [...state.layers, newLayer],
+        layers: newLayers,
         passedPoints: [],
         currentLayer: null,
       };
@@ -106,7 +104,24 @@ export const useStore = create<State>((set) => ({
   setCurrentSelection: (selection: [Point, Point]) => {
     set(() => ({ currentSelection: selection }));
   },
-  addLayer(layer: Layer) {
-    set((state) => ({ layers: [...state.layers, layer] }));
+  toggleLayer: (layerName: string) => {
+    set((state) => {
+      if (state.selectedLayers.includes(layerName)) {
+        const selectedLayers = state.selectedLayers.filter(
+          (layer) => layer !== layerName
+        );
+        return { selectedLayers };
+      }
+
+      const selectedLayers = [...state.selectedLayers, layerName];
+      return { selectedLayers };
+    });
   },
+  deleteLayer: (layerName: string) => {
+    set((state) => {
+      const layers = new Map(state.layers);
+      layers.delete(layerName);
+      return { layers };
+    })
+  }
 }));

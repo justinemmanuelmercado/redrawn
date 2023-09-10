@@ -1,16 +1,18 @@
-import { State, modes } from "@/store";
+import { State } from "@/store";
 import { EllipseLayer } from "./EllipseLayer";
 import { Layer } from "./Layer";
 import { LineLayer } from "./LineLayer";
 import { RectangleLayer } from "./RectangleLayer";
 import { SelectionLayer } from "./SelectionLayer";
 import { FreehandLayer } from "./FreehandLayer";
+import { modes } from "@/lib/tools/tools";
 
 export const layerFactory = (state: State): Layer => {
+  const name = `${state.mode.toUpperCase()} ${state.layerCounts[state.mode]}`;
   switch (state.mode) {
     case modes.ellipse:
       return new EllipseLayer(
-        "Layer " + (state.layers.length + 1),
+        name,
         state.startPoint!,
         state.endPoint!,
         state.fillColor,
@@ -19,7 +21,7 @@ export const layerFactory = (state: State): Layer => {
       );
     case modes.rectangle:
       return new RectangleLayer(
-        "Layer " + (state.layers.length + 1),
+        name,
         state.startPoint!,
         state.endPoint!,
         state.fillColor,
@@ -28,7 +30,7 @@ export const layerFactory = (state: State): Layer => {
       );
     case modes.line:
       return new LineLayer(
-        "Layer " + (state.layers.length + 1),
+        name,
         state.startPoint!,
         state.endPoint!,
         state.strokeColor,
@@ -38,7 +40,7 @@ export const layerFactory = (state: State): Layer => {
       return new SelectionLayer(state.setCurrentSelection);
     case modes.freehand:
       return new FreehandLayer(
-        "Layer " + (state.layers.length + 1),
+        name,
         state.passedPoints,
         state.strokeColor,
         state.strokeSize

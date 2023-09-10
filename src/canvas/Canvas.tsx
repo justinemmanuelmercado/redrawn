@@ -18,6 +18,7 @@ export function Canvas() {
   const currentLayer = useStore((state) => state.currentLayer);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
 
+  // Drawing the checkerboard background
   useEffect(() => {
     const backgroundCanvas = bgCanvasRef.current;
     if (!backgroundCanvas) return;
@@ -59,7 +60,6 @@ export function Canvas() {
 
     if (!ctx) return;
 
-    // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     layers.forEach((layer) => {
@@ -93,17 +93,18 @@ export function Canvas() {
   return (
     <div className="flex items-center justify-center">
       <canvas
-        className="absolute"
+        className="top-0"
+        style={{ transform: "translateX(50%)" }}
         ref={bgCanvasRef}
       ></canvas>
       <canvas
-        className='z-10'
+        className='top-0 z-10 border border-black'
+        style={{ transform: "translateX(-50%)" }}
         ref={canvasRef}
         onMouseDown={handleMouseDown}
         onMouseUp={isDrawing ? handleMouseUp : undefined}
         onMouseMove={isDrawing ? handleMouseMove : undefined}
       ></canvas>
-      {/* <canvas className='z-20'></canvas> */}
     </div>
   );
 }

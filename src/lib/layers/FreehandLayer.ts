@@ -22,27 +22,20 @@ export class FreehandLayer extends Layer {
 
     ctx.scale(scale, scale);
 
-    const outlinePoints = getStroke(this.points);
+    const outlinePoints = getStroke(this.points, {
+
+    });
     const pathData = getSvgPathFromStroke(outlinePoints);
     const myPath = new Path2D(pathData!);
 
     if (this.strokeColor) {
-      ctx.strokeStyle = this.strokeColor;
+      ctx.fillStyle=  this.strokeColor;
     }
 
     if (this.strokeSize) {
       ctx.lineWidth = this.strokeSize;
     }
 
-    // ctx.beginPath();
-
-    // ctx.moveTo(this.points[0].x, this.points[0].y);
-
-    // this.points.forEach((point) => {
-    //   ctx.lineTo(point.x, point.y);
-    // });
-
-    // ctx.stroke();
     ctx.fill(myPath)
 
     ctx.restore();

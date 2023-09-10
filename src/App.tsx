@@ -12,11 +12,11 @@ function App() {
         <div className="col-span-1">
           <Toolbar />
         </div>
-        <div className="col-span-7 bg-white flex flex-col items-center justify-center">
+        <div className="col-span-8 bg-white flex flex-col items-center justify-center overflow-auto">
             <ScribblePrompt />
             <Canvas />
         </div>
-        <div className="col-span-4 bg-slate-100 max-h-screen">
+        <div className="col-span-3 bg-slate-100 max-h-screen">
           <Layers />
         </div>
       </div>
