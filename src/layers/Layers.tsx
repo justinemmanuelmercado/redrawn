@@ -5,7 +5,7 @@ export const Layers = () => {
   const layers = useStore((state) => state.layers);
 
   return (
-    <div className="h-1/2 border-slate-400 border m-2 flex flex-col z-40 bg-gray-100">
+    <div className="h-1/2 border-slate-400 border m-2 flex flex-col z-40 bg-gray-100 rounded-md">
       <div className='w-full flex-shrink-0 flex justify-between items-center p-2'>
         <h1 className="text-lg text-gray-500">
           Layers

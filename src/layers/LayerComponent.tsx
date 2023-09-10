@@ -14,9 +14,9 @@ export const LayerComponent = ({
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
   const previewSide = 50;
   const toggleLayer = useStore((state) => state.toggleLayer);
-  const selectedLayers = useStore((state) => state.selectedLayers);
+  const selectedLayer = useStore((state) => state.selectedLayer);
   const canvasDimensions = useStore((state) => state.canvasDimensions);
-  const isSelected = selectedLayers.includes(layerKey);
+  const isSelected = selectedLayer === layerKey;
   const deleteLayer = useStore((state) => state.deleteLayer);
 
   useEffect(() => {
@@ -58,8 +58,8 @@ export const LayerComponent = ({
     <button
       onClick={() => handleClick()}
       className={`${
-        isSelected ? "bg-gray-200" : "bg-gray-100"
-      } flex items-center gap-2 border border-gray-300 shadow-sm`}
+        isSelected ? "bg-gray-300" : "bg-gray-100"
+      } flex items-center gap-2 border border-gray-300 shadow-sm rounded-md`}
     >
       <div className='flex-shrink-0'>
         <canvas ref={previewCanvas}></canvas>

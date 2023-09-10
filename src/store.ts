@@ -17,7 +17,7 @@ export type State = {
   endPoint: Point | null;
   passedPoints: Point[];
   layers: Map<string, Layer>;
-  selectedLayers: string[];
+  selectedLayer: string | null;
   currentLayer: Layer | null;
   fill: boolean;
   fillColor: string;
@@ -46,7 +46,7 @@ export const useStore = create<State>((set) => ({
   passedPoints: [],
   endPoint: null,
   layers: new Map(),
-  selectedLayers: [],
+  selectedLayer: null,
   currentLayer: null,
   fill: true,
   fillColor: "rgba(0,0,0,1)",
@@ -60,7 +60,10 @@ export const useStore = create<State>((set) => ({
   startDrawing: (point) =>
     set((state) => {
       const isDrawing = true;
-      const layerCounts = { ...state.layerCounts, [state.mode]: state.layerCounts[state.mode] + 1 }
+      const layerCounts = {
+        ...state.layerCounts,
+        [state.mode]: state.layerCounts[state.mode] + 1,
+      };
       const newLayer = layerFactory({
         ...state,
         isDrawing,
@@ -72,7 +75,7 @@ export const useStore = create<State>((set) => ({
         startPoint: point,
         endPoint: point,
         currentLayer: newLayer,
-        layerCounts
+        layerCounts,
       };
     }),
   stopDrawing: (point) =>
@@ -106,15 +109,11 @@ export const useStore = create<State>((set) => ({
   },
   toggleLayer: (layerName: string) => {
     set((state) => {
-      if (state.selectedLayers.includes(layerName)) {
-        const selectedLayers = state.selectedLayers.filter(
-          (layer) => layer !== layerName
-        );
-        return { selectedLayers };
+      if (layerName === state.selectedLayer) {
+        return { selectedLayer: null };
       }
 
-      const selectedLayers = [...state.selectedLayers, layerName];
-      return { selectedLayers };
+      return { selectedLayer: layerName };
     });
   },
   deleteLayer: (layerName: string) => {
@@ -122,6 +121,6 @@ export const useStore = create<State>((set) => ({
       const layers = new Map(state.layers);
       layers.delete(layerName);
       return { layers };
-    })
-  }
+    });
+  },
 }));

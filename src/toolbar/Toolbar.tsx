@@ -22,14 +22,14 @@ export const Toolbar = () => {
 
   return (
     <div className="flex flex-col justify-center items-end h-full">
-      <div className="items-center flex flex-col gap-10 bg-slate-100 border border-slate-300 py-2 w-12 z-30">
+      <div className="items-center flex flex-col gap-10 bg-slate-100 border border-slate-300 py-2 w-12 z-30 rounded-md">
         <div className="flex flex-col gap-1">
           {tools.map((tool) => {
             return (
               <TooltipProvider key={tool.name}>
                 <Tooltip>
                   <TooltipTrigger
-                    className={`border border-slate-300 ${
+                    className={`rounded-md border ${
                       mode === tool.name ? "bg-slate-300" : "bg-slate-200"
                     }`}
                     onClick={() => setMode(tool.name)}
@@ -56,7 +56,7 @@ export const Toolbar = () => {
                 <Tooltip>
                   <TooltipTrigger
                     asChild
-                    className="bg-slate-100 border border-slate-300 flex justify-center"
+                    className="bg-slate-100 border border-slate-300 flex justify-center rounded-md"
                   >
                     <img
                       className="w-8 h-8 p-2 aspect-square"
