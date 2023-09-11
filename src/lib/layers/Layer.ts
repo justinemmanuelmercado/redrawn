@@ -10,7 +10,7 @@ export abstract class Layer {
   public fillColor: null | string = null;
   public strokeColor: null | string = null;
   public strokeSize: number = 1;
-  public originalScale: number = 100; 
+  public scale: number = 100; 
 
   abstract drawToCanvas(ctx: CanvasRenderingContext2D, scale?: number): void;
 

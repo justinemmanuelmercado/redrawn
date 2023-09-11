@@ -67,10 +67,7 @@ export const useStore = create<State>((set) => ({
   startDrawing: (point) =>
     set((state) => {
       const isDrawing = true;
-      const layerCounts = {
-        ...state.layerCounts,
-        [state.mode]: state.layerCounts[state.mode] + 1,
-      };
+
       const newLayer = layerFactory({
         ...state,
         isDrawing,
@@ -82,7 +79,6 @@ export const useStore = create<State>((set) => ({
         startPoint: point,
         endPoint: point,
         currentLayer: newLayer,
-        layerCounts,
       };
     }),
   stopDrawing: (point) =>
@@ -101,6 +97,11 @@ export const useStore = create<State>((set) => ({
         };
       }
 
+      const layerCounts = {
+        ...state.layerCounts,
+        [state.mode]: state.layerCounts[state.mode] + 1,
+      };
+
       const isDrawing = false;
       const newLayer = layerFactory({ ...state, isDrawing, endPoint: point });
       const newLayers = new Map(state.layers);
@@ -110,6 +111,7 @@ export const useStore = create<State>((set) => ({
         layers: newLayers,
         passedPoints: [],
         currentLayer: null,
+        layerCounts
       };
     }),
   updateCurrentLayer: (point) =>

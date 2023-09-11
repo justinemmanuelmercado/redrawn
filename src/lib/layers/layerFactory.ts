@@ -17,7 +17,8 @@ export const layerFactory = (state: State): Layer => {
         state.endPoint!,
         state.fillColor,
         state.strokeColor,
-        state.strokeSize
+        state.strokeSize,
+        1 / (state.canvasSettings.zoom / 100),
       );
     case modes.rectangle:
       return new RectangleLayer(
@@ -26,7 +27,8 @@ export const layerFactory = (state: State): Layer => {
         state.endPoint!,
         state.fillColor,
         state.strokeColor,
-        state.strokeSize
+        state.strokeSize,
+        1 / (state.canvasSettings.zoom / 100),
       );
     case modes.line:
       return new LineLayer(
@@ -34,7 +36,8 @@ export const layerFactory = (state: State): Layer => {
         state.startPoint!,
         state.endPoint!,
         state.strokeColor,
-        state.strokeSize
+        state.strokeSize,
+        1 / (state.canvasSettings.zoom / 100),
       );
     case modes.ai:
       return new SelectionLayer(state.setCurrentSelection);
@@ -43,7 +46,8 @@ export const layerFactory = (state: State): Layer => {
         name,
         state.passedPoints,
         state.strokeColor,
-        state.strokeSize
+        state.strokeSize,
+        1 / (state.canvasSettings.zoom / 100),
       );
     default:
       throw new Error("Invalid layer type");

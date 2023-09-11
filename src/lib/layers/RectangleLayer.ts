@@ -8,7 +8,8 @@ export class RectangleLayer extends Layer {
     end: Point,
     fillColor: string | null,
     strokeColor: string | null,
-    strokeSize: number = 1
+    strokeSize: number = 1,
+    scale: number = 1
   ) {
     super();
     this.start = start;
@@ -16,12 +17,16 @@ export class RectangleLayer extends Layer {
     this.fillColor = fillColor;
     this.strokeColor = strokeColor;
     this.strokeSize = strokeSize;
+    this.scale = scale;
   }
 
-  drawToCanvas(ctx: CanvasRenderingContext2D, scale = 1) {
+  drawToCanvas(ctx: CanvasRenderingContext2D, scale?: number) {
     ctx.save();
 
-    ctx.scale(scale, scale);
+    ctx.scale(this.scale, this.scale);
+    if(scale){
+      ctx.scale(scale, scale);
+    }
 
     if (this.strokeColor) {
       ctx.strokeStyle = this.strokeColor;

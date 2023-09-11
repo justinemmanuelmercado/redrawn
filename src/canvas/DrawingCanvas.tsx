@@ -64,8 +64,6 @@ export function DrawingCanvas({
     }
 
     if (!ctx) return;
-    const scale = 1 / (canvasSettings.zoom / 100);
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     layers.forEach((layer) => {
@@ -73,7 +71,7 @@ export function DrawingCanvas({
     });
 
     if (currentLayer) {
-      currentLayer.drawToCanvas(ctx, scale);
+      currentLayer.drawToCanvas(ctx);
     } 
   }, [
     currentLayer,

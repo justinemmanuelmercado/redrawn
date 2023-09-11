@@ -8,7 +8,8 @@ export class EllipseLayer extends Layer {
     end: Point,
     fillColor: string | null,
     strokeColor: string | null,
-    strokeSize: number = 1
+    strokeSize: number = 1,
+    scale: number = 1
   ) {
     super();
     this.start = start;
@@ -16,12 +17,16 @@ export class EllipseLayer extends Layer {
     this.fillColor = fillColor;
     this.strokeColor = strokeColor;
     this.strokeSize = strokeSize;
+    this.scale = scale;
   }
 
-  drawToCanvas(ctx: CanvasRenderingContext2D, scale = 1) {
+  drawToCanvas(ctx: CanvasRenderingContext2D, scale?: number) {
     ctx.save();  
 
-    ctx.scale(scale, scale);
+    ctx.scale(this.scale, this.scale);
+    if(scale){
+      ctx.scale(scale, scale);
+    }
     const centerX = (this.start.x + this.end.x) / 2;
     const centerY = (this.start.y + this.end.y) / 2;
     const radiusX = Math.abs(this.end.x - this.start.x) / 2;

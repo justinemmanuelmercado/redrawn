@@ -21,7 +21,7 @@ type LayerCounts = Record<Modes, number>;
  */
 export const initialLayerCounts: LayerCounts = Object.keys(modes).reduce(
   (acc: LayerCounts, mode) => {
-    acc[mode as Modes] = 0;
+    acc[mode as Modes] = 1;
     return acc;
   },
   {} as LayerCounts

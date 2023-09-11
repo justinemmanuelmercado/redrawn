@@ -8,19 +8,23 @@ export class FreehandLayer extends Layer {
     public name: string,
     public points: Point[] = [],
     public strokeColor: string | null,
-    public strokeSize: number = 1
+    public strokeSize: number = 1, 
+    public scale: number = 1
   ) {
     super();
   }
 
-  drawToCanvas(ctx: CanvasRenderingContext2D, scale = 1) {
+  drawToCanvas(ctx: CanvasRenderingContext2D, scale?: number) {
     if (this.points.length === 0) {
       return;
     }
 
     ctx.save();
 
-    ctx.scale(scale, scale);
+    ctx.scale(this.scale,this.scale);
+    if(scale){
+      ctx.scale(scale, scale);
+    }
 
     const outlinePoints = getStroke(this.points, {
       size: this.strokeSize
