@@ -1,8 +1,9 @@
 export const modes = {
+  dragging: "dragging",
   rectangle: "rectangle",
   ellipse: "ellipse",
   line: "line",
-  scribbleSelection: "scribbleSelection",
+  ai: "ai",
   freehand: "freehand",
 } as const;
 
@@ -10,14 +11,6 @@ export const modeAction = {
   drawing: "drawing",
   selecting: "selecting",
   dragging: "dragging",
-};
-
-export const modeActions = {
-  [modes.rectangle]: modeAction.drawing,
-  [modes.ellipse]: modeAction.drawing,
-  [modes.line]: modeAction.drawing,
-  [modes.freehand]: modeAction.drawing,
-  [modes.scribbleSelection]: modeAction.selecting,
 };
 
 type LayerCounts = Record<Modes, number>;
@@ -64,8 +57,8 @@ export const tools: Tool[] = [
     tooltip: "Draw with a freehand",
   },
   {
-    name: modes.scribbleSelection,
-    icon: "scribble",
-    tooltip: "Select an area to overlay with StableDiffusion",
+    name: modes.ai,
+    icon: "ai",
+    tooltip: "Overlay AI generated image",
   },
 ];

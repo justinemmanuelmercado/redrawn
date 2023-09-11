@@ -36,7 +36,7 @@ export const layerFactory = (state: State): Layer => {
         state.strokeColor,
         state.strokeSize
       );
-    case modes.scribbleSelection:
+    case modes.ai:
       return new SelectionLayer(state.setCurrentSelection);
     case modes.freehand:
       return new FreehandLayer(

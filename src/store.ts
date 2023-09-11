@@ -8,9 +8,15 @@ interface Point {
   y: number;
 }
 
+interface CanvasSettings {
+  width: number;
+  height: number;
+  zoom: number;
+}
+
 export type State = {
   layerCounts: Record<Modes, number>;
-  canvasDimensions: { width: number; height: number };
+  canvasSettings: CanvasSettings;
   isDrawing: boolean;
   mode: Modes;
   startPoint: Point | null;
@@ -35,11 +41,12 @@ export type State = {
   setCurrentSelection: (selection: [Point, Point]) => void;
   toggleLayer: (layerName: string) => void;
   deleteLayer: (layerName: string) => void;
+  updateCanvasSettings: (options: Partial<CanvasSettings>) => void;
 };
 
 export const useStore = create<State>((set) => ({
   layerCounts: initialLayerCounts,
-  canvasDimensions: { width: 512, height: 512 },
+  canvasSettings: { width: 512, height: 512, zoom: 100 },
   isDrawing: false,
   mode: modes.rectangle,
   startPoint: null,
@@ -80,6 +87,20 @@ export const useStore = create<State>((set) => ({
     }),
   stopDrawing: (point) =>
     set((state) => {
+      // If start and end points are the same or less than 2px difference, don't create a layer
+      if (
+        state.startPoint &&
+        (Math.abs(state.startPoint.x - point.x) <= 2 ||
+          Math.abs(state.startPoint.y - point.y) <= 2)
+      ) {
+        return {
+          isDrawing: false,
+          startPoint: null,
+          endPoint: null,
+          currentLayer: null,
+        };
+      }
+
       const isDrawing = false;
       const newLayer = layerFactory({ ...state, isDrawing, endPoint: point });
       const newLayers = new Map(state.layers);
@@ -121,6 +142,11 @@ export const useStore = create<State>((set) => ({
       const layers = new Map(state.layers);
       layers.delete(layerName);
       return { layers };
+    });
+  },
+  updateCanvasSettings: (options: Partial<CanvasSettings>) => {
+    set((state) => {
+      return { canvasSettings: { ...state.canvasSettings, ...options } };
     });
   },
 }));

@@ -1,4 +1,4 @@
-import { Point } from "@/canvas/Canvas";
+import { Point } from "@/canvas/DrawingCanvas";
 
 export abstract class Layer {
   public visible: boolean = true;
@@ -10,6 +10,8 @@ export abstract class Layer {
   public fillColor: null | string = null;
   public strokeColor: null | string = null;
   public strokeSize: number = 1;
+  public originalScale: number = 100; 
+
   abstract drawToCanvas(ctx: CanvasRenderingContext2D, scale?: number): void;
 
   public updatePoint(newPoint: Point) {

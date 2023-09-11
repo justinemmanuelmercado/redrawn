@@ -75,7 +75,7 @@ export const Toolbar = () => {
               <div className="flex gap-2">
                 <Slider
                   defaultValue={[strokeSize]}
-                  max={50}
+                  max={100}
                   step={1}
                   onValueChange={(e) => {
                     setStrokeSize(e[0]);

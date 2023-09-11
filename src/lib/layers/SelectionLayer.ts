@@ -1,4 +1,4 @@
-import { Point } from "@/canvas/Canvas";
+import { Point } from "@/canvas/DrawingCanvas";
 import { Layer } from "./Layer";
 
 export class SelectionLayer extends Layer {

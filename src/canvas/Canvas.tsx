@@ -1,110 +1,77 @@
-import { useEffect, useRef, useState } from "react";
+import { MouseEventHandler, useRef, useState } from "react";
+import { DrawingCanvas, Point } from "./DrawingCanvas";
+import { CanvasSettings } from "./canvas-settings/CanvasSettings";
+import { ScribblePrompt } from "./prompt-tool/ScribblePrompt";
 import { useStore } from "@/store";
-import { drawCheckerBoard } from "@/helpers/canvas-helpers";
 
-export interface Point {
-  x: number;
-  y: number;
-}
-
-export function Canvas() {
+export const Canvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const bgCanvasRef = useRef<HTMLCanvasElement>(null);
+  const { isDrawing, startDrawing, stopDrawing, updateCurrentLayer, mode } =
+    useStore((state) => state);
+  const [dragStartPoint, setDragStartPoint] = useState<Point | null>(null);
 
-  const { isDrawing, startDrawing, stopDrawing, updateCurrentLayer, canvasDimensions, endPoint } = useStore(
-    (state) => state
-  );
-  const layers = useStore((state) => state.layers);
-  const currentLayer = useStore((state) => state.currentLayer);
-  const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
-
-  // Drawing the checkerboard background
-  useEffect(() => {
-    const backgroundCanvas = bgCanvasRef.current;
-    if (!backgroundCanvas) return;
-
-    const dpi = window.devicePixelRatio;
-    backgroundCanvas.width = canvasDimensions.width * dpi;
-    backgroundCanvas.height = canvasDimensions.height * dpi;
-    backgroundCanvas.style.width = canvasDimensions.width + "px";
-    backgroundCanvas.style.height = canvasDimensions.height + "px";
-
-    const backgroundCtx = backgroundCanvas.getContext("2d");
-    if (!backgroundCtx) return;
-
-    backgroundCtx.scale(dpi, dpi);
-
-    drawCheckerBoard(
-      backgroundCtx,
-      10 * dpi,
-      Math.ceil(backgroundCanvas.width / 20),
-      Math.ceil(backgroundCanvas.height / 20)
-    );
-  }, [canvasDimensions.height, canvasDimensions.width]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const dpi = window.devicePixelRatio;
-    if (!ctx) {
-      canvas.height = canvasDimensions.height * dpi;
-      canvas.width = canvasDimensions.width * dpi;
-      canvas.style.width = canvasDimensions.width + "px";
-      canvas.style.height = canvasDimensions.height + "px";
-      const temp = canvas.getContext("2d");
-      if (!temp) return;
-      temp.scale(dpi, dpi);
-      setCtx(temp);
-    }
-
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    layers.forEach((layer) => {
-      layer.drawToCanvas(ctx);
-    });
-
-    if (currentLayer) {
-      currentLayer.drawToCanvas(ctx);
-    }
-  }, [currentLayer, layers, ctx, canvasDimensions.height, canvasDimensions.width, endPoint]);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    const x = e.nativeEvent.offsetX;
-    const y = e.nativeEvent.offsetY;
-    startDrawing({ x, y });
-  };
-
-  const handleMouseUp = (e: React.MouseEvent) => {
-    const x = e.nativeEvent.offsetX;
-    const y = e.nativeEvent.offsetY;
-    stopDrawing({ x, y });
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleGlobalMouseMove: MouseEventHandler<HTMLDivElement> = (e) => {
     if (isDrawing) {
-      const x = e.nativeEvent.offsetX;
-      const y = e.nativeEvent.offsetY;
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
       updateCurrentLayer({ x, y });
     }
+
+    // Handle moving the entire canvas if needed
+    if (dragStartPoint) {
+      // Your logic here to update the canvas position
+      // Probably update a translateX and translateY in your state
+    }
   };
+
+  const handleGlobalMouseUp: MouseEventHandler<HTMLDivElement> = (e) => {
+    if (isDrawing) {
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      stopDrawing({ x, y });
+    }
+
+    if (dragStartPoint) {
+      // Your logic here to finalize the canvas position
+      // Maybe save the new position to the state if you need to
+      // Then clear the dragStartPoint to indicate dragging is done
+      setDragStartPoint(null);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    console.log(x, y);
+
+    if (mode === "dragging") {
+      setDragStartPoint({ x, y });
+    } else {
+      startDrawing({ x, y });
+    }
+  };
+
   return (
-    <div className="flex items-center justify-center">
-      <canvas
-        className="top-0"
-        style={{ transform: "translateX(50%)" }}
-        ref={bgCanvasRef}
-      ></canvas>
-      <canvas
-        className='top-0 z-10 border border-black'
-        style={{ transform: "translateX(-50%)" }}
-        ref={canvasRef}
-        onMouseDown={handleMouseDown}
-        onMouseUp={isDrawing ? handleMouseUp : undefined}
-        onMouseMove={isDrawing ? handleMouseMove : undefined}
-      ></canvas>
+    <div
+      className="w-full h-full flex flex-col gap-2 items-center overflow-auto"
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleGlobalMouseMove}
+      onMouseUp={handleGlobalMouseUp}
+    >
+      <ScribblePrompt></ScribblePrompt>
+      <CanvasSettings></CanvasSettings>
+      <div>
+        <DrawingCanvas canvasRef={canvasRef}></DrawingCanvas>
+      </div>
     </div>
   );
-}
+};

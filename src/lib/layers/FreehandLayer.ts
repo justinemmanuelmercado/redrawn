@@ -1,4 +1,4 @@
-import { Point } from "@/canvas/Canvas";
+import { Point } from "@/canvas/DrawingCanvas";
 import { Layer } from "./Layer";
 import { getStroke } from "perfect-freehand";
 import { getSvgPathFromStroke } from '@/helpers/canvas-helpers';
@@ -23,17 +23,13 @@ export class FreehandLayer extends Layer {
     ctx.scale(scale, scale);
 
     const outlinePoints = getStroke(this.points, {
-
+      size: this.strokeSize
     });
     const pathData = getSvgPathFromStroke(outlinePoints);
     const myPath = new Path2D(pathData!);
 
     if (this.strokeColor) {
-      ctx.fillStyle=  this.strokeColor;
-    }
-
-    if (this.strokeSize) {
-      ctx.lineWidth = this.strokeSize;
+      ctx.fillStyle = this.strokeColor;
     }
 
     ctx.fill(myPath)

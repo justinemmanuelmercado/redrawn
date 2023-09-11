@@ -15,7 +15,7 @@ export const LayerComponent = ({
   const previewSide = 50;
   const toggleLayer = useStore((state) => state.toggleLayer);
   const selectedLayer = useStore((state) => state.selectedLayer);
-  const canvasDimensions = useStore((state) => state.canvasDimensions);
+  const canvasSettings = useStore((state) => state.canvasSettings);
   const isSelected = selectedLayer === layerKey;
   const deleteLayer = useStore((state) => state.deleteLayer);
 
@@ -35,7 +35,7 @@ export const LayerComponent = ({
     if (!ctx) return;
 
     ctx.clearRect(0, 0, previewSide, previewSide);
-    const scale = previewSide / canvasDimensions.width;
+    const scale = previewSide / canvasSettings.width;
     const checkBoardSize = 2 * dpi;
     drawCheckerBoard(
       ctx,
@@ -44,7 +44,7 @@ export const LayerComponent = ({
       previewSide * checkBoardSize
     );
     layer.drawToCanvas(ctx, scale);
-  }, [layer, ctx, canvasDimensions.width]);
+  }, [layer, ctx, canvasSettings.width]);
 
   const handleClick = () => {
     toggleLayer(layerKey);
@@ -66,9 +66,9 @@ export const LayerComponent = ({
       </div>
       <div className='flex justify-between flex-grow items-center text-gray-600'>
         <p>{layer.name}</p>
-        <button className="p-2 flex justify-center items-center gap-2" onClick={() => handleDelete()}>
+        <span className="p-2 flex justify-center items-center gap-2" onClick={() => handleDelete()}>
           <img className="w-4" src="/icons/trash.svg" alt="Trash icon" />
-        </button>
+        </span>
       </div>
     </button>
   );
