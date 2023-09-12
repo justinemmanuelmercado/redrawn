@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { Layer } from "./lib/layers/Layer";
 import { layerFactory } from "./lib/layers/layerFactory";
 import { Modes, initialLayerCounts, modes } from "./lib/tools/tools";
+import { ImageLayer } from "./lib/layers/ImageLayer";
 
 interface Point {
   x: number;
@@ -43,6 +44,7 @@ export type State = {
   toggleLayer: (layerName: string) => void;
   deleteLayer: (layerName: string) => void;
   updateCanvasSettings: (options: Partial<CanvasSettings>) => void;
+  newImageLayer: (image: HTMLImageElement) => void;
 };
 
 export const useStore = create<State>((set) => ({
@@ -131,10 +133,10 @@ export const useStore = create<State>((set) => ({
     set(() => ({ currentAISelection: selection }));
   },
   startAISelection: () => {
-    set(() => ({isMouseDown: true }));
+    set(() => ({ isMouseDown: true }));
   },
   stopAISelection: () => {
-    set(() => ({isMouseDown: false }));
+    set(() => ({ isMouseDown: false }));
   },
   toggleLayer: (layerName: string) => {
     set((state) => {
@@ -157,4 +159,26 @@ export const useStore = create<State>((set) => ({
       return { canvasSettings: { ...state.canvasSettings, ...options } };
     });
   },
+  newImageLayer: (loadedImage: HTMLImageElement) => {
+    set((state) => {
+      const nme = `${modes.image.toUpperCase()} ${state.layerCounts[modes.image]}`;
+    
+      const newLayer = new ImageLayer(
+        nme,
+        state.currentAISelection[0],
+        state.currentAISelection[1],
+        loadedImage // pass the loaded HTMLImageElement here
+      );
+    
+      const layerCounts = {
+        ...state.layerCounts,
+        [modes.image]: state.layerCounts[modes.image] + 1,
+      };
+      return {
+        layers: new Map(state.layers).set(newLayer.name, newLayer),
+        layerCounts,
+      };
+    });
+  }
+  
 }));

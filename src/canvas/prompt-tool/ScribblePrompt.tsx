@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "@/store";
 import { useMutation } from "@tanstack/react-query";
 import { Layer } from "@/lib/layers/Layer";
@@ -44,7 +44,6 @@ function captureArea(
 
     if (ctx) {
       ctx.putImageData(imageData, 0, 0);
-      document.body.appendChild(canvas);
       canvas.toBlob((blob) => {
         resolve(blob);
       });
@@ -75,8 +74,9 @@ const uploadScribble = async ({
   return response.json();
 };
 
+
 export const ScribblePrompt = () => {
-  const { currentAISelection, layers, canvasSettings } = useStore(
+  const { currentAISelection, layers, canvasSettings, newImageLayer } = useStore(
     (state) => state
   );
   const [prompt, setPrompt] = useState("");
@@ -87,6 +87,25 @@ export const ScribblePrompt = () => {
 
   const mutation = useMutation(uploadScribble);
 
+  const addImageLayer = async (imageURL: string) => {
+    const image = new Image();
+    image.crossOrigin = "anonymous"; 
+    image.src = imageURL;
+  
+    await new Promise((resolve, reject) => {
+      image.onload = () => {
+        resolve(true);
+      };
+      image.onerror = () => {
+        reject(new Error("Failed to load image"));
+      };
+    });
+  
+    // Call the Zustand action
+    newImageLayer(image);
+  };
+
+  
   const handleSubmit = async () => {
     const ctx = drawCanvas(layers, canvasSettings);
     if (!ctx) return;
@@ -99,7 +118,11 @@ export const ScribblePrompt = () => {
         mutation.mutate(
           { blob, prompt },
           {
-            onSuccess: (data) => {
+            onSuccess: async (data) => {
+              if (data.result) {
+                await addImageLayer(data.result);
+              }
+
               console.log("Success!", data);
             },
             onError: (error) => {
