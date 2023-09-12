@@ -12,6 +12,12 @@ import (
 	"github.com/replicate/replicate-go"
 )
 
+type Response struct {
+	PredictId string      `json:"predictId"`
+	Data      interface{} `json:"data"`
+	Result    interface{} `json:"result"`
+}
+
 func ScribbleHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("ScribbleHandler called")
 	r.ParseMultipartForm(10 << 20) // max memory limit
@@ -40,20 +46,34 @@ func ScribbleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// input := replicate.PredictionInput{
+	// 	"prompt":           prompt,
+	// 	"image":            dataURI,
+	// 	"num_samples":      "1",
+	// 	"image_resolution": "512",
+	// 	"ddim_steps":       50,
+	// 	"scale":            20,
+	// 	"eta":              0,
+	// 	"a_prompt":         "best quality",
+	// 	"n_prompt":         "worst quality, low quality",
+	// }
+
+	// prediction, err := client.CreatePrediction(context.TODO(), "435061a1b5a4c1e26740464bf786efdfa9cb3a3ac488595a2de23e143fdb0117", input, nil, false)
+
 	input := replicate.PredictionInput{
-		"prompt":           prompt,
-		"image":            dataURI,
-		"num_samples":      "1",
-		"image_resolution": "512",
-		"ddim_steps":       20,
-		"scale":            9,
-		"eta":              0,
-		"a_prompt":         "best quality",
-		"n_prompt":         "longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality",
-		"guidance_scale":   9,
+		"prompt":                 prompt,
+		"image":                  dataURI,
+		"num_samples":            "1",
+		"condition_scale":        0.5,
+		"structure":              "scribble",
+		"image_resolution":       512,
+		"steps":                  50,
+		"eta":                    0,
+		"negative_prompt":        "Longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality",
+		"return_reference_image": true,
 	}
 
-	prediction, err := client.CreatePrediction(context.TODO(), "435061a1b5a4c1e26740464bf786efdfa9cb3a3ac488595a2de23e143fdb0117", input, nil, false)
+	prediction, err := client.CreatePrediction(context.TODO(), "795433b19458d0f4fa172a7ccf93178d2adb1cb8ab2ad6c8fdc33fdbcd49f477", input, nil, false)
 	if err != nil {
 		log.Printf("Error creating prediction: %v", err)
 		return
@@ -70,7 +90,21 @@ func ScribbleHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if prediction.Output != nil {
-			jsonData, err := json.Marshal(prediction.Output)
+			response := Response{
+				PredictId: predictId,
+				Data:      prediction.Output,
+			}
+
+			switch data := prediction.Output.(type) {
+			case []interface{}:
+				if (len(data)) >= 2 {
+					response.Result = data[1]
+				}
+			default:
+				log.Printf("Unexpected type %T\n", data)
+			}
+
+			responseJSON, err := json.Marshal(response)
 			if err != nil {
 				log.Println("Error marshalling prediction output:", err)
 				return
@@ -78,8 +112,7 @@ func ScribbleHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("Output:", prediction.Output)
 
 			w.Header().Set("Content-Type", "application/json")
-			w.Write([]byte(predictId))
-			w.Write([]byte(jsonData))
+			w.Write(responseJSON)
 
 			break
 		}

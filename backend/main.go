@@ -7,6 +7,7 @@ import (
 	"redrawn-api/pkg/handler"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -34,6 +35,19 @@ func main() {
 
 	// queries := db.New(dbConn)
 	r := chi.NewRouter()
+
+	// Basic CORS setup
+	corsConfig := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"}, // Replace with your frontend app's URL
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	})
+
+	r.Use(corsConfig.Handler)
+
 	r.Route("/v1", func(r chi.Router) {
 		r.Post("/scribble", handler.ScribbleHandler)
 	})
