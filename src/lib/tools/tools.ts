@@ -5,6 +5,7 @@ export const modes = {
   line: "line",
   ai: "ai",
   freehand: "freehand",
+  image: "image"
 } as const;
 
 export const modeAction = {

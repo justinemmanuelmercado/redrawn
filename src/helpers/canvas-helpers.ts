@@ -1,3 +1,5 @@
+import { Point } from "@/canvas/DrawingCanvas";
+
 export const drawCheckerBoard = (
   ctx: CanvasRenderingContext2D,
   size: number,
@@ -14,10 +16,7 @@ export const drawCheckerBoard = (
 
 const average = (a: number, b: number) => (a + b) / 2;
 
-export function getSvgPathFromStroke(
-  points: number[][],
-  closed = true
-) {
+export function getSvgPathFromStroke(points: number[][], closed = true) {
   const len = points.length;
 
   if (len < 4) {
@@ -49,3 +48,47 @@ export function getSvgPathFromStroke(
 
   return result;
 }
+
+export function getPointsForAIFromCanvasRect(
+  currentAISelection: [Point, Point],
+  x: number,
+  y: number,
+  rect: DOMRect
+): [Point, Point] {
+  // Calculate the width and height of the current selection
+  const selectionWidth = currentAISelection[1].x - currentAISelection[0].x;
+  const selectionHeight = currentAISelection[1].y - currentAISelection[0].y;
+
+  // Calculate the new topLeft and bottomRight points, keeping them within canvas boundaries
+  const newTopLeftX = Math.min(
+    Math.max(0, x - selectionWidth / 2),
+    rect.width - selectionWidth
+  );
+  const newTopLeftY = Math.min(
+    Math.max(0, y - selectionHeight / 2),
+    rect.height - selectionHeight
+  );
+
+  return [
+    { x: newTopLeftX, y: newTopLeftY },
+    { x: newTopLeftX + selectionWidth, y: newTopLeftY + selectionHeight },
+  ];
+}
+export const drawMarchingAnts = (
+  ctx: CanvasRenderingContext2D,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  lineDashOffset: number
+) => {
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+
+  ctx.setLineDash([8, 4]);
+  ctx.lineDashOffset = lineDashOffset;
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+};

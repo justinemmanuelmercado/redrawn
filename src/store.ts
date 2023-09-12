@@ -17,7 +17,7 @@ interface CanvasSettings {
 export type State = {
   layerCounts: Record<Modes, number>;
   canvasSettings: CanvasSettings;
-  isDrawing: boolean;
+  isMouseDown: boolean;
   mode: Modes;
   startPoint: Point | null;
   endPoint: Point | null;
@@ -29,8 +29,7 @@ export type State = {
   fillColor: string;
   strokeColor: string;
   strokeSize: number;
-  currentSelection: [Point, Point];
-  isSelecting: boolean;
+  currentAISelection: [Point, Point];
   startDrawing: (point: Point) => void;
   stopDrawing: (point: Point) => void;
   updateCurrentLayer: (point: Point) => void;
@@ -38,7 +37,9 @@ export type State = {
   setStrokeColor: (color: string) => void;
   setFillColor: (color: string) => void;
   setStrokeSize: (width: number) => void;
-  setCurrentSelection: (selection: [Point, Point]) => void;
+  setCurrentAISelection: (selection: [Point, Point]) => void;
+  startAISelection: () => void;
+  stopAISelection: () => void;
   toggleLayer: (layerName: string) => void;
   deleteLayer: (layerName: string) => void;
   updateCanvasSettings: (options: Partial<CanvasSettings>) => void;
@@ -47,7 +48,7 @@ export type State = {
 export const useStore = create<State>((set) => ({
   layerCounts: initialLayerCounts,
   canvasSettings: { width: 512, height: 512, zoom: 100 },
-  isDrawing: false,
+  isMouseDown: false,
   mode: modes.rectangle,
   startPoint: null,
   passedPoints: [],
@@ -59,23 +60,22 @@ export const useStore = create<State>((set) => ({
   fillColor: "rgba(0,0,0,1)",
   strokeColor: "rgba(0,0,0,1)",
   strokeSize: 4,
-  currentSelection: [
+  currentAISelection: [
     { x: 0, y: 0 },
-    { x: 0, y: 0 },
+    { x: 512, y: 512 },
   ],
-  isSelecting: false,
   startDrawing: (point) =>
     set((state) => {
-      const isDrawing = true;
+      const isMouseDown = true;
 
       const newLayer = layerFactory({
         ...state,
-        isDrawing,
+        isMouseDown,
         startPoint: point,
         endPoint: point,
       });
       return {
-        isDrawing,
+        isMouseDown,
         startPoint: point,
         endPoint: point,
         currentLayer: newLayer,
@@ -90,7 +90,7 @@ export const useStore = create<State>((set) => ({
           Math.abs(state.startPoint.y - point.y) <= 2)
       ) {
         return {
-          isDrawing: false,
+          isMouseDown: false,
           startPoint: null,
           endPoint: null,
           currentLayer: null,
@@ -102,16 +102,16 @@ export const useStore = create<State>((set) => ({
         [state.mode]: state.layerCounts[state.mode] + 1,
       };
 
-      const isDrawing = false;
-      const newLayer = layerFactory({ ...state, isDrawing, endPoint: point });
+      const isMouseDown = false;
+      const newLayer = layerFactory({ ...state, isMouseDown, endPoint: point });
       const newLayers = new Map(state.layers);
       newLayers.set(newLayer.name, newLayer);
       return {
-        isDrawing: false,
+        isMouseDown: false,
         layers: newLayers,
         passedPoints: [],
         currentLayer: null,
-        layerCounts
+        layerCounts,
       };
     }),
   updateCurrentLayer: (point) =>
@@ -127,8 +127,14 @@ export const useStore = create<State>((set) => ({
   setStrokeColor: (color: string) => set(() => ({ strokeColor: color })),
   setFillColor: (color: string) => set(() => ({ fillColor: color })),
   setStrokeSize: (size: number) => set(() => ({ strokeSize: size })),
-  setCurrentSelection: (selection: [Point, Point]) => {
-    set(() => ({ currentSelection: selection }));
+  setCurrentAISelection: (selection: [Point, Point]) => {
+    set(() => ({ currentAISelection: selection }));
+  },
+  startAISelection: () => {
+    set(() => ({isMouseDown: true }));
+  },
+  stopAISelection: () => {
+    set(() => ({isMouseDown: false }));
   },
   toggleLayer: (layerName: string) => {
     set((state) => {

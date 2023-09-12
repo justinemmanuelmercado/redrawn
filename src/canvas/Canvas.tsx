@@ -1,48 +1,61 @@
-import { MouseEventHandler, useRef, useState } from "react";
-import { DrawingCanvas, Point } from "./DrawingCanvas";
+import { MouseEventHandler, useRef } from "react";
+import { DrawingCanvas } from "./DrawingCanvas";
 import { CanvasSettings } from "./canvas-settings/CanvasSettings";
 import { ScribblePrompt } from "./prompt-tool/ScribblePrompt";
 import { useStore } from "@/store";
+import { getPointsForAIFromCanvasRect } from "@/helpers/canvas-helpers";
 
 export const Canvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { isDrawing, startDrawing, stopDrawing, updateCurrentLayer, mode } =
-    useStore((state) => state);
-  const [dragStartPoint, setDragStartPoint] = useState<Point | null>(null);
+  const {
+    isMouseDown,
+    startDrawing,
+    stopDrawing,
+    updateCurrentLayer,
+    mode,
+    currentAISelection,
+    setCurrentAISelection,
+    startAISelection,
+    stopAISelection,
+  } = useStore((state) => state);
 
   const handleGlobalMouseMove: MouseEventHandler<HTMLDivElement> = (e) => {
-    if (isDrawing) {
+    if (isMouseDown) {
       const rect = canvasRef.current?.getBoundingClientRect();
       if (!rect) return;
 
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      updateCurrentLayer({ x, y });
-    }
 
-    // Handle moving the entire canvas if needed
-    if (dragStartPoint) {
-      // Your logic here to update the canvas position
-      // Probably update a translateX and translateY in your state
+      if (mode === "ai") {
+        if (x >= 0 && y >= 0 && x <= rect.width && y <= rect.height) {
+          setCurrentAISelection(
+            getPointsForAIFromCanvasRect(currentAISelection, x, y, rect)
+          );
+        }
+      } else {
+        updateCurrentLayer({ x, y });
+      }
     }
   };
 
   const handleGlobalMouseUp: MouseEventHandler<HTMLDivElement> = (e) => {
-    if (isDrawing) {
+    if (isMouseDown) {
       const rect = canvasRef.current?.getBoundingClientRect();
       if (!rect) return;
 
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-
-      stopDrawing({ x, y });
-    }
-
-    if (dragStartPoint) {
-      // Your logic here to finalize the canvas position
-      // Maybe save the new position to the state if you need to
-      // Then clear the dragStartPoint to indicate dragging is done
-      setDragStartPoint(null);
+      if (mode === "ai") {
+        stopAISelection();
+        if (x >= 0 && y >= 0 && x <= rect.width && y <= rect.height) {
+          setCurrentAISelection(
+            getPointsForAIFromCanvasRect(currentAISelection, x, y, rect)
+          );
+        }
+      } else {
+        stopDrawing({ x, y });
+      }
     }
   };
 
@@ -51,10 +64,14 @@ export const Canvas = () => {
     if (!rect) return;
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    console.log(x, y);
 
-    if (mode === "dragging") {
-      setDragStartPoint({ x, y });
+    if (mode === "ai") {
+      startAISelection();
+      if (x >= 0 && y >= 0 && x <= rect.width && y <= rect.height) {
+        setCurrentAISelection(
+          getPointsForAIFromCanvasRect(currentAISelection, x, y, rect)
+        );
+      }
     } else {
       startDrawing({ x, y });
     }
@@ -69,9 +86,7 @@ export const Canvas = () => {
     >
       <ScribblePrompt></ScribblePrompt>
       <CanvasSettings></CanvasSettings>
-      <div>
-        <DrawingCanvas canvasRef={canvasRef}></DrawingCanvas>
-      </div>
+      <DrawingCanvas canvasRef={canvasRef}></DrawingCanvas>
     </div>
   );
 };

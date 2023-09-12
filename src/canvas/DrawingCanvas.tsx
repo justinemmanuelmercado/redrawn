@@ -1,6 +1,7 @@
-import { RefObject, useEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useState } from "react";
 import { useStore } from "@/store";
-import { drawCheckerBoard } from "@/helpers/canvas-helpers";
+import { OverlayCanvas } from "./OverlayCanvas";
+import { BackgroundCanvas } from "./BackgroundCanvas";
 
 export interface Point {
   x: number;
@@ -12,36 +13,10 @@ export function DrawingCanvas({
 }: {
   canvasRef: RefObject<HTMLCanvasElement>;
 }) {
-  const bgCanvasRef = useRef<HTMLCanvasElement>(null);
-
   const { canvasSettings, endPoint } = useStore((state) => state);
   const layers = useStore((state) => state.layers);
   const currentLayer = useStore((state) => state.currentLayer);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
-
-  // Drawing the checkerboard background
-  useEffect(() => {
-    const backgroundCanvas = bgCanvasRef.current;
-    if (!backgroundCanvas) return;
-
-    const dpi = window.devicePixelRatio;
-    backgroundCanvas.width = canvasSettings.width * dpi;
-    backgroundCanvas.height = canvasSettings.height * dpi;
-    backgroundCanvas.style.width = canvasSettings.width + "px";
-    backgroundCanvas.style.height = canvasSettings.height + "px";
-
-    const backgroundCtx = backgroundCanvas.getContext("2d");
-    if (!backgroundCtx) return;
-
-    backgroundCtx.scale(dpi, dpi);
-
-    drawCheckerBoard(
-      backgroundCtx,
-      10 * dpi,
-      Math.ceil(backgroundCanvas.width / 20),
-      Math.ceil(backgroundCanvas.height / 20)
-    );
-  }, [canvasSettings.height, canvasSettings.width]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -72,7 +47,7 @@ export function DrawingCanvas({
 
     if (currentLayer) {
       currentLayer.drawToCanvas(ctx);
-    } 
+    }
   }, [
     currentLayer,
     layers,
@@ -85,22 +60,16 @@ export function DrawingCanvas({
 
   return (
     <div className="flex items-center justify-center p-10">
+      <BackgroundCanvas></BackgroundCanvas>
       <canvas
-        className="top-0"
+        className="border border-black"
         style={{
-          transform: `translateX(50%) scale(${canvasSettings.zoom / 100})`,
-          transformOrigin: 'top left',
-        }}
-        ref={bgCanvasRef}
-      ></canvas>
-      <canvas
-        className="top-0 z-10 border border-black"
-        style={{
-          transform: `translateX(-50%) scale(${canvasSettings.zoom / 100})`,
-          transformOrigin: 'top left',
+          transform: `scale(${canvasSettings.zoom / 100})`,
+          transformOrigin: "top left",
         }}
         ref={canvasRef}
       ></canvas>
+      <OverlayCanvas></OverlayCanvas>
     </div>
   );
 }

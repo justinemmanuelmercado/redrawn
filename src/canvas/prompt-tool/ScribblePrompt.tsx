@@ -44,6 +44,7 @@ function captureArea(
 
     if (ctx) {
       ctx.putImageData(imageData, 0, 0);
+      document.body.appendChild(canvas);
       canvas.toBlob((blob) => {
         resolve(blob);
       });
@@ -75,7 +76,7 @@ const uploadScribble = async ({
 };
 
 export const ScribblePrompt = () => {
-  const { currentSelection, layers, canvasSettings } = useStore(
+  const { currentAISelection, layers, canvasSettings } = useStore(
     (state) => state
   );
   const [prompt, setPrompt] = useState("");
@@ -90,7 +91,7 @@ export const ScribblePrompt = () => {
     const ctx = drawCanvas(layers, canvasSettings);
     if (!ctx) return;
 
-    captureArea(currentSelection[0], currentSelection[1], ctx).then(
+    captureArea(currentAISelection[0], currentAISelection[1], ctx).then(
       async (blob: Blob | null) => {
         if (!blob) return;
         console.log(ctx);

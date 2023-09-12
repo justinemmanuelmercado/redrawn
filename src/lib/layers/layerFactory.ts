@@ -39,8 +39,6 @@ export const layerFactory = (state: State): Layer => {
         state.strokeSize,
         1 / (state.canvasSettings.zoom / 100),
       );
-    case modes.ai:
-      return new SelectionLayer(state.setCurrentSelection);
     case modes.freehand:
       return new FreehandLayer(
         name,
