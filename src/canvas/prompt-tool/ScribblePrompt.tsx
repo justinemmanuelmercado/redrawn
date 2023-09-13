@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useStore } from "@/store";
 import { useMutation } from "@tanstack/react-query";
 import { Layer } from "@/lib/layers/Layer";
