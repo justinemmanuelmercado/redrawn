@@ -13,6 +13,9 @@ interface CanvasSettings {
   width: number;
   height: number;
   zoom: number;
+  offsetY: number;
+  offsetX: number;
+
 }
 
 export type State = {
@@ -31,6 +34,7 @@ export type State = {
   strokeColor: string;
   strokeSize: number;
   currentAISelection: [Point, Point];
+  startDrag: (point: Point) => void;
   startDrawing: (point: Point) => void;
   stopDrawing: (point: Point) => void;
   updateCurrentLayer: (point: Point) => void;
@@ -39,8 +43,7 @@ export type State = {
   setFillColor: (color: string) => void;
   setStrokeSize: (width: number) => void;
   setCurrentAISelection: (selection: [Point, Point]) => void;
-  startAISelection: () => void;
-  stopAISelection: () => void;
+  toggleIsMouseDown: (isMouseDown: boolean) => void;
   toggleLayer: (layerName: string) => void;
   deleteLayer: (layerName: string) => void;
   updateCanvasSettings: (options: Partial<CanvasSettings>) => void;
@@ -49,7 +52,7 @@ export type State = {
 
 export const useStore = create<State>((set) => ({
   layerCounts: initialLayerCounts,
-  canvasSettings: { width: 512, height: 512, zoom: 100 },
+  canvasSettings: { width: 512, height: 512, zoom: 100, offsetY: 0, offsetX: 0 },
   isMouseDown: false,
   mode: modes.rectangle,
   startPoint: null,
@@ -66,6 +69,13 @@ export const useStore = create<State>((set) => ({
     { x: 0, y: 0 },
     { x: 512, y: 512 },
   ],
+  startDrag: (point) => {
+    set(() => {
+      return {
+        startPoint: point,
+      };
+    });
+  },
   startDrawing: (point) =>
     set((state) => {
       const isMouseDown = true;
@@ -132,11 +142,8 @@ export const useStore = create<State>((set) => ({
   setCurrentAISelection: (selection: [Point, Point]) => {
     set(() => ({ currentAISelection: selection }));
   },
-  startAISelection: () => {
-    set(() => ({ isMouseDown: true }));
-  },
-  stopAISelection: () => {
-    set(() => ({ isMouseDown: false }));
+  toggleIsMouseDown: (isMouseDown: boolean) => {
+    set(() => ({ isMouseDown }));
   },
   toggleLayer: (layerName: string) => {
     set((state) => {

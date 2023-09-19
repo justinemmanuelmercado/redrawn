@@ -67,7 +67,7 @@ func ScribbleHandler(w http.ResponseWriter, r *http.Request) {
 		"condition_scale":        0.5,
 		"structure":              "scribble",
 		"image_resolution":       512,
-		"steps":                  50,
+		"steps":                  20,
 		"eta":                    0,
 		"negative_prompt":        "Longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality",
 		"return_reference_image": true,

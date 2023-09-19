@@ -1,9 +1,13 @@
-import { MouseEventHandler, useRef } from "react";
+import { MouseEventHandler, useEffect, useRef, useState } from "react";
 import { DrawingCanvas } from "./DrawingCanvas";
 import { CanvasSettings } from "./canvas-settings/CanvasSettings";
 import { ScribblePrompt } from "./prompt-tool/ScribblePrompt";
 import { useStore } from "@/store";
-import { getPointsForAIFromCanvasRect } from "@/helpers/canvas-helpers";
+import {
+  calculateNewDragPosition,
+  getPointsForAIFromCanvasRect,
+} from "@/helpers/canvas-helpers";
+import { modeCursorMap, modes } from "@/lib/tools/tools";
 
 export const Canvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -15,26 +19,45 @@ export const Canvas = () => {
     mode,
     currentAISelection,
     setCurrentAISelection,
-    startAISelection,
-    stopAISelection,
+    toggleIsMouseDown,
+    canvasSettings,
+    updateCanvasSettings,
+    startDrag,
+    startPoint,
   } = useStore((state) => state);
+  const [cursor, setCursor] = useState<string>("default");
 
   const handleGlobalMouseMove: MouseEventHandler<HTMLDivElement> = (e) => {
     if (isMouseDown) {
       const rect = canvasRef.current?.getBoundingClientRect();
       if (!rect) return;
-
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
+      const newStarting = {
+        x: e.clientX - canvasSettings.offsetX,
+        y: e.clientY - canvasSettings.offsetY,
+      };
 
-      if (mode === "ai") {
-        if (x >= 0 && y >= 0 && x <= rect.width && y <= rect.height) {
-          setCurrentAISelection(
-            getPointsForAIFromCanvasRect(currentAISelection, x, y, rect)
+      switch (mode) {
+        case modes.ai:
+          if (x >= 0 && y >= 0 && x <= rect.width && y <= rect.height) {
+            setCurrentAISelection(
+              getPointsForAIFromCanvasRect(currentAISelection, x, y, rect)
+            );
+          }
+          break;
+        case modes.drag:
+          updateCanvasSettings(
+            calculateNewDragPosition(
+              startPoint ?? newStarting,
+              e.clientX,
+              e.clientY
+            )
           );
-        }
-      } else {
-        updateCurrentLayer({ x, y });
+          break;
+        default:
+          updateCurrentLayer({ x, y });
+          break;
       }
     }
   };
@@ -46,15 +69,20 @@ export const Canvas = () => {
 
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      if (mode === "ai") {
-        stopAISelection();
-        if (x >= 0 && y >= 0 && x <= rect.width && y <= rect.height) {
-          setCurrentAISelection(
-            getPointsForAIFromCanvasRect(currentAISelection, x, y, rect)
-          );
-        }
-      } else {
-        stopDrawing({ x, y });
+      toggleIsMouseDown(false);
+      switch (mode) {
+        case modes.ai:
+          if (x >= 0 && y >= 0 && x <= rect.width && y <= rect.height) {
+            setCurrentAISelection(
+              getPointsForAIFromCanvasRect(currentAISelection, x, y, rect)
+            );
+          }
+          break;
+        case modes.drag:
+          break;
+        default:
+          stopDrawing({ x, y });
+          break;
       }
     }
   };
@@ -65,28 +93,49 @@ export const Canvas = () => {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    if (mode === "ai") {
-      startAISelection();
-      if (x >= 0 && y >= 0 && x <= rect.width && y <= rect.height) {
-        setCurrentAISelection(
-          getPointsForAIFromCanvasRect(currentAISelection, x, y, rect)
-        );
-      }
-    } else {
-      startDrawing({ x, y });
+    const start = {
+      x: e.clientX - canvasSettings.offsetX,
+      y: e.clientY - canvasSettings.offsetY,
+    };
+
+    toggleIsMouseDown(true);
+    switch (mode) {
+      case modes.ai:
+        if (x >= 0 && y >= 0 && x <= rect.width && y <= rect.height) {
+          setCurrentAISelection(
+            getPointsForAIFromCanvasRect(currentAISelection, x, y, rect)
+          );
+        }
+        break;
+      case modes.drag:
+        startDrag(start);
+        break;
+      default:
+        startDrawing({ x, y });
+        break;
     }
   };
 
+  useEffect(() => {
+    modeCursorMap[mode] && setCursor(modeCursorMap[mode]);
+  }, [mode]);
+
   return (
     <div
-      className="w-full h-full flex flex-col gap-2 items-center overflow-auto"
+      className="w-full h-full flex flex-col gap-2 items-center overflow-hidden bg-slate-200"
       onMouseDown={handleMouseDown}
       onMouseMove={handleGlobalMouseMove}
       onMouseUp={handleGlobalMouseUp}
     >
       <ScribblePrompt></ScribblePrompt>
       <CanvasSettings></CanvasSettings>
-      <DrawingCanvas canvasRef={canvasRef}></DrawingCanvas>
+      <div
+        style={{
+          cursor,
+        }}
+      >
+        <DrawingCanvas canvasRef={canvasRef}></DrawingCanvas>
+      </div>
     </div>
   );
 };

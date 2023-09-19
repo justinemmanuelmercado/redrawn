@@ -1,0 +1,3 @@
+.main {
+  grid-template-columns: 3rem repeat(11, 1fr);
+}

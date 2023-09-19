@@ -21,7 +21,7 @@ export const CanvasSettings = () => {
   const zoomOptions = [25, 50, 75, 100, 125, 150, 200, 300, 400, 500];
 
   return (
-    <div className="p-2 bg-gray-100 rounded-md flex gap-2">
+    <div className="p-2 bg-gray-100 rounded-md flex gap-2 z-20">
       <DropdownMenu>
         <DropdownMenuTrigger className="font-bold">
           Canvas Size

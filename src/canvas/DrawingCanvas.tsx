@@ -19,6 +19,7 @@ export function DrawingCanvas({
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
 
   useEffect(() => {
+    console.log("DrawingCanvas useEffect")
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -59,7 +60,12 @@ export function DrawingCanvas({
   ]);
 
   return (
-    <div className="flex items-center justify-center p-10">
+    <div
+      style={{
+        transform: `translate(${canvasSettings.offsetX}px, ${canvasSettings.offsetY}px)`,
+      }}
+      className="flex items-center justify-center p-10 z-10"
+    >
       <BackgroundCanvas></BackgroundCanvas>
       <canvas
         className="border border-black"

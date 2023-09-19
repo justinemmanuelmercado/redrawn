@@ -135,7 +135,7 @@ export const ScribblePrompt = () => {
   };
 
   return (
-    <div className="p-2 bg-gray-100">
+    <div className="p-2 bg-gray-100 z-20">
       <input
         className="border border-black"
         value={prompt}

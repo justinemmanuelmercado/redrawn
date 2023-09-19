@@ -82,13 +82,25 @@ export const drawMarchingAnts = (
   y2: number,
   lineDashOffset: number
 ) => {
+  const lineWidth = 6
   ctx.strokeStyle = "white";
-  ctx.lineWidth = 2;
+  ctx.lineWidth = lineWidth;
   ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
 
   ctx.setLineDash([8, 4]);
   ctx.lineDashOffset = lineDashOffset;
   ctx.strokeStyle = "black";
-  ctx.lineWidth = 1;
+  ctx.lineWidth = lineWidth / 2 + 1;
   ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+};
+
+export const calculateNewDragPosition = (
+  start: Point,
+  clientX: number,
+  clientY: number
+) => {
+  return {
+    offsetX: clientX - start.x,
+    offsetY: clientY - start.y,
+  };
 };

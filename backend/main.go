@@ -50,6 +50,7 @@ func main() {
 
 	r.Route("/v1", func(r chi.Router) {
 		r.Post("/scribble", handler.ScribbleHandler)
+		// r.Post("/generate", handler.GenerateHandler)
 	})
 
 	log.Println("Starting server on :8080")

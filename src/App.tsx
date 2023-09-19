@@ -9,14 +9,14 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="App grid grid-cols-12 h-screen">
+      <div className="App main grid h-screen">
         <div className="col-span-1">
           <Toolbar />
         </div>
         <div className="col-span-8 flex flex-col items-center justify-center overflow-auto">
           <Canvas />
         </div>
-        <div className="col-span-3 max-h-screen">
+        <div className="col-span-3 max-h-screen bg-slate-300">
           <Layers />
           <LayerOptions />
         </div>

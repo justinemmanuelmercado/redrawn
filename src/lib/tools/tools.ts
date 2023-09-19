@@ -1,17 +1,23 @@
 export const modes = {
-  dragging: "dragging",
   rectangle: "rectangle",
   ellipse: "ellipse",
   line: "line",
   ai: "ai",
   freehand: "freehand",
-  image: "image"
+  image: "image",
+  drag: "drag",
+  cursor: "cursor"
 } as const;
 
-export const modeAction = {
-  drawing: "drawing",
-  selecting: "selecting",
-  dragging: "dragging",
+export const modeCursorMap = {
+  [modes.rectangle]: "crosshair",
+  [modes.ellipse]: "crosshair",
+  [modes.line]: "crosshair",
+  [modes.ai]: "crosshair",
+  [modes.freehand]: "crosshair",
+  [modes.image]: "crosshair",
+  [modes.cursor]: "default",
+  [modes.drag]: "grab",
 };
 
 type LayerCounts = Record<Modes, number>;
@@ -61,5 +67,15 @@ export const tools: Tool[] = [
     name: modes.ai,
     icon: "ai",
     tooltip: "Overlay AI generated image",
+  },
+  {
+    name: modes.drag,
+    icon: "drag",
+    tooltip: "Drag the canvas around",
+  },
+  {
+    name: modes.cursor,
+    icon: "cursor",
+    tooltip: "Select and move layers",
   },
 ];
