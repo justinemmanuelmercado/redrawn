@@ -22,8 +22,10 @@ export const Canvas = () => {
     toggleIsMouseDown,
     canvasSettings,
     updateCanvasSettings,
-    startDrag,
+    setStartPoint,
     startPoint,
+    setCurrentSelectedLayerForReposition,
+    repositionLayer,
   } = useStore((state) => state);
   const [cursor, setCursor] = useState<string>("default");
 
@@ -31,16 +33,20 @@ export const Canvas = () => {
     if (isMouseDown) {
       const rect = canvasRef.current?.getBoundingClientRect();
       if (!rect) return;
+      
+      // This is for the canvas only
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
+
+      // This is for the whole background of the canvas
       const newStarting = {
         x: e.clientX - canvasSettings.offsetX,
         y: e.clientY - canvasSettings.offsetY,
       };
-
       switch (mode) {
         case modes.ai:
           if (x >= 0 && y >= 0 && x <= rect.width && y <= rect.height) {
+            console.log(x, y)
             setCurrentAISelection(
               getPointsForAIFromCanvasRect(currentAISelection, x, y, rect)
             );
@@ -54,6 +60,9 @@ export const Canvas = () => {
               e.clientY
             )
           );
+          break;
+        case modes.cursor:
+          repositionLayer({ x, y });
           break;
         default:
           updateCurrentLayer({ x, y });
@@ -79,6 +88,8 @@ export const Canvas = () => {
           }
           break;
         case modes.drag:
+          break;
+        case modes.cursor:
           break;
         default:
           stopDrawing({ x, y });
@@ -108,7 +119,11 @@ export const Canvas = () => {
         }
         break;
       case modes.drag:
-        startDrag(start);
+        setStartPoint(start);
+        break;
+      case modes.cursor:
+        setStartPoint({ x, y });
+        setCurrentSelectedLayerForReposition({ x, y });
         break;
       default:
         startDrawing({ x, y });

@@ -82,7 +82,7 @@ export const drawMarchingAnts = (
   y2: number,
   lineDashOffset: number
 ) => {
-  const lineWidth = 6
+  const lineWidth = 6;
   ctx.strokeStyle = "white";
   ctx.lineWidth = lineWidth;
   ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
@@ -104,3 +104,20 @@ export const calculateNewDragPosition = (
     offsetY: clientY - start.y,
   };
 };
+
+export function isPointNearLine(
+  x: number,
+  y: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  threshold = 5
+) {
+  const A = y2 - y1;
+  const B = x1 - x2;
+  const C = x2 * y1 - x1 * y2;
+
+  const distance = Math.abs(A * x + B * y + C) / Math.sqrt(A * A + B * B);
+  return distance < threshold;
+}

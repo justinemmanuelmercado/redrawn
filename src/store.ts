@@ -3,6 +3,10 @@ import { Layer } from "./lib/layers/Layer";
 import { layerFactory } from "./lib/layers/layerFactory";
 import { Modes, initialLayerCounts, modes } from "./lib/tools/tools";
 import { ImageLayer } from "./lib/layers/ImageLayer";
+import { LineLayer } from "./lib/layers/LineLayer";
+import { EllipseLayer } from "./lib/layers/EllipseLayer";
+import { RectangleLayer } from "./lib/layers/RectangleLayer";
+import { isPointNearLine } from "./helpers/canvas-helpers";
 
 interface Point {
   x: number;
@@ -15,7 +19,6 @@ interface CanvasSettings {
   zoom: number;
   offsetY: number;
   offsetX: number;
-
 }
 
 export type State = {
@@ -34,7 +37,8 @@ export type State = {
   strokeColor: string;
   strokeSize: number;
   currentAISelection: [Point, Point];
-  startDrag: (point: Point) => void;
+  currentSelectedLayerForReposition: string | null;
+  setStartPoint: (point: Point) => void;
   startDrawing: (point: Point) => void;
   stopDrawing: (point: Point) => void;
   updateCurrentLayer: (point: Point) => void;
@@ -48,11 +52,19 @@ export type State = {
   deleteLayer: (layerName: string) => void;
   updateCanvasSettings: (options: Partial<CanvasSettings>) => void;
   newImageLayer: (image: HTMLImageElement) => void;
+  repositionLayer: (position: Point) => void;
+  setCurrentSelectedLayerForReposition: (position: Point) => void;
 };
 
 export const useStore = create<State>((set) => ({
   layerCounts: initialLayerCounts,
-  canvasSettings: { width: 512, height: 512, zoom: 100, offsetY: 0, offsetX: 0 },
+  canvasSettings: {
+    width: 512,
+    height: 512,
+    zoom: 100,
+    offsetY: 0,
+    offsetX: 0,
+  },
   isMouseDown: false,
   mode: modes.rectangle,
   startPoint: null,
@@ -69,10 +81,11 @@ export const useStore = create<State>((set) => ({
     { x: 0, y: 0 },
     { x: 512, y: 512 },
   ],
-  startDrag: (point) => {
+  currentSelectedLayerForReposition: "",
+  setStartPoint: (point) => {
     set(() => {
       return {
-        startPoint: point,
+        startPoint: { x: point.x, y: point.y },
       };
     });
   },
@@ -83,13 +96,13 @@ export const useStore = create<State>((set) => ({
       const newLayer = layerFactory({
         ...state,
         isMouseDown,
-        startPoint: point,
-        endPoint: point,
+        startPoint: { x: point.x, y: point.y },
+        endPoint: { x: point.x, y: point.y  },
       });
       return {
         isMouseDown,
-        startPoint: point,
-        endPoint: point,
+        startPoint: { x: point.x, y: point.y },
+        endPoint: { x: point.x, y: point.y },
         currentLayer: newLayer,
       };
     }),
@@ -124,6 +137,7 @@ export const useStore = create<State>((set) => ({
         passedPoints: [],
         currentLayer: null,
         layerCounts,
+        startPoint: null,
       };
     }),
   updateCurrentLayer: (point) =>
@@ -168,15 +182,17 @@ export const useStore = create<State>((set) => ({
   },
   newImageLayer: (loadedImage: HTMLImageElement) => {
     set((state) => {
-      const nme = `${modes.image.toUpperCase()} ${state.layerCounts[modes.image]}`;
-    
+      const nme = `${modes.image.toUpperCase()} ${
+        state.layerCounts[modes.image]
+      }`;
+
       const newLayer = new ImageLayer(
         nme,
         state.currentAISelection[0],
         state.currentAISelection[1],
         loadedImage // pass the loaded HTMLImageElement here
       );
-    
+
       const layerCounts = {
         ...state.layerCounts,
         [modes.image]: state.layerCounts[modes.image] + 1,
@@ -186,6 +202,103 @@ export const useStore = create<State>((set) => ({
         layerCounts,
       };
     });
-  }
-  
+  },
+  repositionLayer: (position: Point) => {
+    set((state) => {
+      if (
+        state.currentSelectedLayerForReposition !== null &&
+        state.startPoint !== null
+      ) {
+        const layer = state.layers.get(state.currentSelectedLayerForReposition);
+        if (layer) {
+          if (layer instanceof RectangleLayer) {
+            const dx = position.x - state.startPoint.x;
+            const dy = position.y - state.startPoint.y;
+            layer.start.x += dx;
+            layer.end.x += dx;
+            layer.start.y += dy;
+            layer.end.y += dy;
+            return {
+              startPoint: { x: state.startPoint.x + dx, y: state.startPoint.y + dy },
+              layers: new Map(state.layers).set(layer.name,layer),
+            };
+            // return {
+            //   layers: new Map(state.layers).set(
+            //     layer.name,
+            //     layer.createNew(
+            //       { x: layer.start.x + dx, y: layer.start.y + dy },
+            //       { x: layer.end.x + dx, y: layer.end.y + dy }
+            //     )
+            //   ),
+            // };
+          }
+        }
+      }
+
+      return {
+      };
+    });
+  },
+  setCurrentSelectedLayerForReposition: (position: Point) => {
+    const { x, y } = position;
+    set((state) => {
+      const layersArray = Array.from(state.layers.values()).reverse();
+      let selectedLayer = null;
+      for (const layer of layersArray) {
+        if (layer instanceof RectangleLayer) {
+          if (
+            x >= layer.start.x &&
+            x <= layer.end.x &&
+            y >= layer.start.y &&
+            y <= layer.end.y
+          ) {
+            selectedLayer = layer;
+            break;
+          }
+        } else if (layer instanceof LineLayer) {
+          if (
+            isPointNearLine(
+              x,
+              y,
+              layer.start.x,
+              layer.start.y,
+              layer.end.x,
+              layer.end.y
+            )
+          ) {
+            selectedLayer = layer;
+            break;
+          }
+        } else if (layer instanceof EllipseLayer) {
+          const centerX = (layer.start.x + layer.end.x) / 2;
+          const centerY = (layer.start.y + layer.end.y) / 2;
+          const radiusX = Math.abs(layer.end.x - layer.start.x) / 2;
+          const radiusY = Math.abs(layer.end.y - layer.start.y) / 2;
+
+          if (
+            Math.pow((x - centerX) / radiusX, 2) +
+              Math.pow((y - centerY) / radiusY, 2) <=
+            1
+          ) {
+            selectedLayer = layer;
+            break;
+          }
+        } else if (layer instanceof ImageLayer) {
+          if (
+            x >= layer.start.x &&
+            x <= layer.end.x &&
+            y >= layer.start.y &&
+            y <= layer.end.y
+          ) {
+            selectedLayer = layer;
+            break;
+          }
+        }
+      }
+      return {
+        currentSelectedLayerForReposition:
+          selectedLayer !== null ? selectedLayer.name : null,
+      };
+    });
+  },
 }));

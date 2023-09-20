@@ -19,7 +19,6 @@ export function DrawingCanvas({
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
 
   useEffect(() => {
-    console.log("DrawingCanvas useEffect")
     const canvas = canvasRef.current;
     if (!canvas) return;
 

@@ -3,7 +3,6 @@ import { EllipseLayer } from "./EllipseLayer";
 import { Layer } from "./Layer";
 import { LineLayer } from "./LineLayer";
 import { RectangleLayer } from "./RectangleLayer";
-import { SelectionLayer } from "./SelectionLayer";
 import { FreehandLayer } from "./FreehandLayer";
 import { modes } from "@/lib/tools/tools";
 

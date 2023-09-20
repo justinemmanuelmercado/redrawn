@@ -20,6 +20,27 @@ export class RectangleLayer extends Layer {
     this.scale = scale;
   }
 
+  createNew(start: Point, end: Point) {
+    console.log(
+      this.name,
+      start,
+      end,
+      this.fillColor,
+      this.strokeColor,
+      this.strokeSize,
+      this.scale
+    )
+    return new RectangleLayer(
+      this.name,
+      start,
+      end,
+      this.fillColor,
+      this.strokeColor,
+      this.strokeSize,
+      this.scale
+    );
+  }
+
   drawToCanvas(ctx: CanvasRenderingContext2D, scale?: number) {
     ctx.save();
 
