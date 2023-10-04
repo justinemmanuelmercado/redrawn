@@ -38,27 +38,11 @@ func ScribbleHandler(w http.ResponseWriter, r *http.Request) {
 	dataURI := "data:image/png;base64," + encoded
 	prompt := r.FormValue("prompt")
 
-	// Placeholder for Theme-based settings. You can expand this later.
-
 	client, err := replicate.NewClient(replicate.WithTokenFromEnv())
 	if err != nil {
 		log.Printf("Error creating client: %v", err)
 		return
 	}
-
-	// input := replicate.PredictionInput{
-	// 	"prompt":           prompt,
-	// 	"image":            dataURI,
-	// 	"num_samples":      "1",
-	// 	"image_resolution": "512",
-	// 	"ddim_steps":       50,
-	// 	"scale":            20,
-	// 	"eta":              0,
-	// 	"a_prompt":         "best quality",
-	// 	"n_prompt":         "worst quality, low quality",
-	// }
-
-	// prediction, err := client.CreatePrediction(context.TODO(), "435061a1b5a4c1e26740464bf786efdfa9cb3a3ac488595a2de23e143fdb0117", input, nil, false)
 
 	input := replicate.PredictionInput{
 		"prompt":                 prompt,

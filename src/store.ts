@@ -56,17 +56,19 @@ export type State = {
   setCurrentSelectedLayerForReposition: (position: Point) => void;
 };
 
+const defaultCanvasSettings: CanvasSettings = {
+  width: 512,
+  height: 512,
+  zoom: 100,
+  offsetY: 0,
+  offsetX: 0,
+};
+
 export const useStore = create<State>((set) => ({
   layerCounts: initialLayerCounts,
-  canvasSettings: {
-    width: 512,
-    height: 512,
-    zoom: 100,
-    offsetY: 0,
-    offsetX: 0,
-  },
+  canvasSettings: defaultCanvasSettings,
   isMouseDown: false,
-  mode: modes.rectangle,
+  mode: modes.cursor,
   startPoint: null,
   passedPoints: [],
   endPoint: null,
@@ -97,7 +99,7 @@ export const useStore = create<State>((set) => ({
         ...state,
         isMouseDown,
         startPoint: { x: point.x, y: point.y },
-        endPoint: { x: point.x, y: point.y  },
+        endPoint: { x: point.x, y: point.y },
       });
       return {
         isMouseDown,
@@ -177,7 +179,7 @@ export const useStore = create<State>((set) => ({
   },
   updateCanvasSettings: (options: Partial<CanvasSettings>) => {
     set((state) => {
-      return { canvasSettings: { ...state.canvasSettings, ...options } };
+      return { canvasSettings: {...state.canvasSettings, offsetX: 0, offsetY: 0, ...options } };
     });
   },
   newImageLayer: (loadedImage: HTMLImageElement) => {
@@ -211,32 +213,30 @@ export const useStore = create<State>((set) => ({
       ) {
         const layer = state.layers.get(state.currentSelectedLayerForReposition);
         if (layer) {
-          if (layer instanceof RectangleLayer) {
-            const dx = position.x - state.startPoint.x;
-            const dy = position.y - state.startPoint.y;
+          const dx = position.x - state.startPoint.x;
+          const dy = position.y - state.startPoint.y;
+          if (
+            layer instanceof RectangleLayer ||
+            layer instanceof ImageLayer ||
+            layer instanceof EllipseLayer ||
+            layer instanceof LineLayer
+          ) {
             layer.start.x += dx;
             layer.end.x += dx;
             layer.start.y += dy;
             layer.end.y += dy;
             return {
-              startPoint: { x: state.startPoint.x + dx, y: state.startPoint.y + dy },
-              layers: new Map(state.layers).set(layer.name,layer),
+              startPoint: {
+                x: state.startPoint.x + dx,
+                y: state.startPoint.y + dy,
+              },
+              layers: new Map(state.layers).set(layer.name, layer),
             };
-            // return {
-            //   layers: new Map(state.layers).set(
-            //     layer.name,
-            //     layer.createNew(
-            //       { x: layer.start.x + dx, y: layer.start.y + dy },
-            //       { x: layer.end.x + dx, y: layer.end.y + dy }
-            //     )
-            //   ),
-            // };
           }
         }
       }
 
-      return {
-      };
+      return {};
     });
   },
   setCurrentSelectedLayerForReposition: (position: Point) => {
@@ -246,11 +246,12 @@ export const useStore = create<State>((set) => ({
       let selectedLayer = null;
       for (const layer of layersArray) {
         if (layer instanceof RectangleLayer) {
+          console.log(layer.name, layer.start, layer.end, x, y);
           if (
-            x >= layer.start.x &&
-            x <= layer.end.x &&
-            y >= layer.start.y &&
-            y <= layer.end.y
+            x >= Math.min(layer.start.x, layer.end.x) &&
+            x <= Math.max(layer.start.x, layer.end.x) &&
+            y >= Math.min(layer.start.y, layer.end.y) &&
+            y <= Math.max(layer.start.y, layer.end.y)
           ) {
             selectedLayer = layer;
             break;
@@ -263,10 +264,12 @@ export const useStore = create<State>((set) => ({
               layer.start.x,
               layer.start.y,
               layer.end.x,
-              layer.end.y
+              layer.end.y,
+              layer.strokeSize
             )
           ) {
             selectedLayer = layer;
+            console.log(selectedLayer)
             break;
           }
         } else if (layer instanceof EllipseLayer) {

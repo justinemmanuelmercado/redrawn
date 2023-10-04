@@ -1,12 +1,12 @@
 export const modes = {
+  cursor: "cursor",
+  drag: "drag",
   rectangle: "rectangle",
   ellipse: "ellipse",
   line: "line",
   ai: "ai",
   freehand: "freehand",
   image: "image",
-  drag: "drag",
-  cursor: "cursor"
 } as const;
 
 export const modeCursorMap = {
@@ -44,6 +44,16 @@ interface Tool {
 
 export const tools: Tool[] = [
   {
+    name: modes.cursor,
+    icon: "cursor",
+    tooltip: "Select and move layers",
+  },
+  {
+    name: modes.drag,
+    icon: "drag",
+    tooltip: "Drag the canvas around",
+  },
+  {
     name: modes.ellipse,
     icon: "ellipse",
     tooltip: "Draw Ellipse",
@@ -67,15 +77,5 @@ export const tools: Tool[] = [
     name: modes.ai,
     icon: "ai",
     tooltip: "Overlay AI generated image",
-  },
-  {
-    name: modes.drag,
-    icon: "drag",
-    tooltip: "Drag the canvas around",
-  },
-  {
-    name: modes.cursor,
-    icon: "cursor",
-    tooltip: "Select and move layers",
   },
 ];

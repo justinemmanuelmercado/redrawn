@@ -13,13 +13,16 @@ export const LayerComponent = ({
   const previewCanvas = useRef<HTMLCanvasElement>(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
   const previewSide = 50;
+  const layers = useStore((state) => state.layers);
   const toggleLayer = useStore((state) => state.toggleLayer);
   const selectedLayer = useStore((state) => state.selectedLayer);
   const canvasSettings = useStore((state) => state.canvasSettings);
+  const isMouseDown = useStore((state) => state.isMouseDown);
   const isSelected = selectedLayer === layerKey;
   const deleteLayer = useStore((state) => state.deleteLayer);
 
   useEffect(() => {
+    if(isMouseDown) return;
     if (!previewCanvas.current) return;
     const dpi = window.devicePixelRatio;
     const canvas = previewCanvas.current;
@@ -44,7 +47,7 @@ export const LayerComponent = ({
       previewSide * checkBoardSize
     );
     layer.drawToCanvas(ctx, scale);
-  }, [layer, ctx, canvasSettings.width]);
+  }, [layers, layer, ctx, canvasSettings.width, isMouseDown]);
 
   const handleClick = () => {
     toggleLayer(layerKey);
